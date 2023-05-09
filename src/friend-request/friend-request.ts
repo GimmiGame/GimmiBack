@@ -1,5 +1,6 @@
-import * as mongoose from 'mongoose';
+import * as mongoose from "mongoose";
 import RequestStatusEnum from "../enums/request-status-enum";
+
 export const FriendRequestSchema = new mongoose.Schema({
   from: {
     type: String,
@@ -18,10 +19,3 @@ export const FriendRequestSchema = new mongoose.Schema({
   },
 });
 
-export interface FriendRequestModel {
-  _id: string,
-  from: string,
-  to: string,
-  sendingDate: string,
-  status: string
-}

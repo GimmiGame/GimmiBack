@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {format} from 'date-fns';
 import { Model } from "mongoose";
-import { FriendRequestModel } from "./friend-request-model";
+import { IFriendRequest } from "../interfaces/IFriendRequest";
 
 @Injectable()
 export class FriendRequestService {
 
-    constructor(@InjectModel('FriendRequest') private readonly friendRequestConstructor : Model<FriendRequestModel>) {}
+    constructor(@InjectModel('FriendRequest') private readonly friendRequestConstructor : Model<IFriendRequest>) {}
     //friendRequestConstructor is a mongoose model that we can use to create new documents in the database
     createRequest(from: string, to: string) {
         //Check of parameters

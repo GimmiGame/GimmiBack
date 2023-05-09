@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { FriendRequestController } from './friend-request.controller';
 import { FriendRequestService } from './friend-request.service';
 import { MongooseModule } from "@nestjs/mongoose";
-import { FriendRequestSchema } from "./friend-request-model";
+import { FriendRequestSchema } from "./friend-request";
 
 @Module({
   //Allows us to inject the FriendRequestModel into the service and instantiate it
