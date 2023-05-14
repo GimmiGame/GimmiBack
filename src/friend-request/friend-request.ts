@@ -17,5 +17,6 @@ export const FriendRequestSchema = new mongoose.Schema({
     type: String,
     default: RequestStatusEnum.PENDING,
   },
+
 });
 
