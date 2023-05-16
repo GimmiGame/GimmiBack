@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Param, Patch, Delete, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Post, Get, Param, Patch, Delete, ValidationPipe, BadRequestException } from "@nestjs/common";
 import { FriendRequestService } from "./friend-request.service";
 import { CreateFriendRequestDTO } from "./dto/CreateFriendRequestDTO";
 
@@ -6,16 +6,15 @@ import { CreateFriendRequestDTO } from "./dto/CreateFriendRequestDTO";
 export class FriendRequestController {
   constructor(private readonly friendRequestService: FriendRequestService) {}
 
-  @Post()
-  createRequest(@Body(ValidationPipe) createFriendRequestDTO : CreateFriendRequestDTO ) { //ValidationPipe verifies that the body of the request follows the rules specified in the DTO
-    return this.friendRequestService.createRequest(createFriendRequestDTO)
-      .then((result) => {
-        return result;
-      })
-      .catch((err) => {
-        return {
-          error : err.message()
-        };
-      });
+  @Post('create')
+  async createRequest(@Body(ValidationPipe) createFriendRequestDTO: CreateFriendRequestDTO) {
+    try {
+      return await this.friendRequestService.createRequest(createFriendRequestDTO);
+    } catch (err) {
+        throw new BadRequestException('Could not create new friend request. Error: ' + err.message);
+    }
   }
+
+
+
 }

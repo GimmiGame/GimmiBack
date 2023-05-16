@@ -14,7 +14,9 @@ export class CreateFriendRequestDTO {
   @IsString()
   from: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    default: 'test'
+  })
   @IsNotEmpty()
   @IsString()
   to: string;

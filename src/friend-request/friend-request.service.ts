@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import {format} from 'date-fns';
 import { Model } from "mongoose";
@@ -10,21 +10,20 @@ export class FriendRequestService {
 
     constructor(@InjectModel('FriendRequest') private readonly friendRequestModel : Model<IFriendRequest>) {}
     //friendRequestConstructor is a mongoose model that we can use to create new documents in the database
-    createRequest(createFriendRequestDTO: CreateFriendRequestDTO) {
-
+    async createRequest(createFriendRequestDTO: CreateFriendRequestDTO) {
         //Check if the friend request already exists
-        try{
-            this.friendRequestModel.findOne({
+        let existingFriendRequest ;
+        try {
+            existingFriendRequest = await this.friendRequestModel.findOne({
                 from: createFriendRequestDTO.from,
-                to: createFriendRequestDTO.to
-            }).then((result) => {
-                if(result){
-                    //console.log('Friend request already exists');
-                    throw new BadRequestException('Friend request already exists')
-                }
+                to: createFriendRequestDTO.to,
             });
-        } catch (err) {
-            throw new BadRequestException('Could not check if friend request already exists. Error => ' + err);
+        }catch(err) {
+            Logger.log('No friend request found : '+ err + "\nCreating new one ...")
+        }
+
+        if (existingFriendRequest) {
+            throw new BadRequestException('Friend request already exists');
         }
 
         //Create new friend request
@@ -37,20 +36,19 @@ export class FriendRequestService {
                 sendingDate: formattedDate
             });
         } catch (err) {
-            throw new BadRequestException('Could not create new friend request. Error => ' + err);
+            throw new BadRequestException('Could not create new friend request. Details => ' + err);
         }
 
         //Save new friend request
         //save() method is provided by mongoose
-        return newRequest.save()
-          .then((result) => {
-            console.log(result);
-            return 'FriendRequest with id : ' + result._id + ' created';
-          })
-          .catch((err) => {
-            console.log(err);
-            throw new BadRequestException('Could not save new friend request. Error => ' + err);
-          });
+        let result ;
+        try{
+            result = await newRequest.save()
+        }catch(err) {
+            throw new BadRequestException('Could not save new friend request. Details => ' + err);
+        }
+
+        return 'FriendRequest with id : ' + result._id + ' created';
     }
 
 
