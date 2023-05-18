@@ -7,7 +7,7 @@ export class CreateFriendRequestDTO {
   //Can also describe and put default values on optional fields like below
 
   @ApiProperty({
-    description: 'The usernameId of the user who sent the friend request',
+    description: 'The pseudo of the user who sent the friend request',
     default: 'dsbdfbshb_USERID_TEST_gfopxopmc'
   })
   @IsNotEmpty()

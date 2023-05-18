@@ -1,7 +1,7 @@
 enum RequestStatusEnum {
   PENDING = 'PENDING',
   ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
+  REJECTED = 'REFUSED',
 }
 
 export default RequestStatusEnum;
