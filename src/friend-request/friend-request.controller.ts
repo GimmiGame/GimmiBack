@@ -68,9 +68,9 @@ export class FriendRequestController {
       default: 'test',
     }
   })
-  async getFriendRequestByFromTo(@Query('from') from: string, @Query('to') to: string ) : Promise<IFriendRequest> {
+  async getFriendRequestsByFromTo(@Query('from') from: string, @Query('to') to: string ) : Promise<IFriendRequest[]> {
     try {
-      return await this.friendRequestService.getOneByFromTo(from, to);
+      return await this.friendRequestService.getRequestsByFromTo(from, to);
     } catch (err) {
         throw new NotFoundException('Could not get friend request. Error: ' + err.message);
     }
@@ -155,31 +155,6 @@ export class FriendRequestController {
     }
   }
 
-  @Patch('accept/fromTo')
-  @ApiOperation({
-    description: 'Accept a friend request with specified sender and receiver'
-  })
-  @ApiQuery({
-    name: 'from',
-    schema: {
-      default: 'dsbdfbshb_USERID_TEST_gfopxopmc',
-    }
-  })
-  @ApiQuery({
-    name: 'to',
-    schema: {
-      default: 'test',
-    }
-  })
-  async acceptRequestFromTo(@Query('from') from: string, @Query('to') to: string) : Promise<string>{
-    try {
-      return await this.friendRequestService.acceptRequestFromTo(from, to);
-    } catch (err) {
-        throw new NotFoundException('Could not accept friend request. Error: ' + err.message);
-    }
-  }
-
-
   @Patch('refuse/:_id')
   @ApiOperation({
     description: 'Refuse a friend request by giving the its _id',
@@ -198,29 +173,6 @@ export class FriendRequestController {
     }
   }
 
-  @Patch('refuse/fromTo')
-  @ApiOperation({
-    description: 'Refuse a friend request with specified sender and receiver',
-  })
-  @ApiQuery({
-    name: 'from',
-    schema: {
-      default: 'dsbdfbshb_USERID_TEST_gfopxopmc'
-    }
-  })
-  @ApiQuery({
-    name: 'to',
-    schema: {
-      default: 'test',
-    }
-  })
-  async refuseRequestFromTo(@Query('from') from: string, @Query('to') to: string) : Promise<string>{
-    try {
-      return await this.friendRequestService.refuseRequestFromTo(from, to);
-    } catch (err) {
-        throw new NotFoundException('Could not reject friend request. Error: ' + err.message);
-    }
-  }
 
   @Delete('delete/:_id')
   @ApiOperation({
@@ -258,32 +210,29 @@ export class FriendRequestController {
     }
   }
 
-  @Delete('delete/fromTo')
-  @ApiOperation({
-    description: 'Delete a friend request by its sender and receiver',
-  })
-  @ApiQuery({
-    name: 'from',
-    schema: {
-      default: 'test',
-    },
-  })
-  @ApiQuery({
-    name: 'to',
-    schema: {
-      default: 'test2',
-    }
-  })
-  async deleteRequestFromTo(@Query('from') from: string, @Query('to') to: string) : Promise<string> {
-    try {
-      return await this.friendRequestService.deleteOneFromTo(from, to);
-    } catch (err) {
-      throw new NotFoundException('Could not delete friend request. Error: ' + err.message);
-    }
-  }
 
-
-
-
+  // @Patch('refuse/fromTo')
+  // @ApiOperation({
+  //   description: 'Refuse a friend request with specified sender and receiver',
+  // })
+  // @ApiQuery({
+  //   name: 'from',
+  //   schema: {
+  //     default: 'dsbdfbshb_USERID_TEST_gfopxopmc'
+  //   }
+  // })
+  // @ApiQuery({
+  //   name: 'to',
+  //   schema: {
+  //     default: 'test',
+  //   }
+  // })
+  // async refuseRequestFromTo(@Query('from') from: string, @Query('to') to: string) : Promise<string>{
+  //   try {
+  //     return await this.friendRequestService.refuseRequestFromTo(from, to);
+  //   } catch (err) {
+  //       throw new NotFoundException('Could not reject friend request. Error: ' + err.message);
+  //   }
+  // }
 
 }

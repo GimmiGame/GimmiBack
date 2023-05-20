@@ -66,27 +66,31 @@ export class FriendRequestService {
         return friendRequestResponse;
     }
 
-    async getOneByFromTo(from: string, to: string): Promise<IFriendRequest> {
-        let friendRequest;
+    async getRequestsByFromTo(from: string, to: string): Promise<IFriendRequest[]> {
+        let friendRequests;
         try {
-            friendRequest = await this.friendRequestModel.findOne({ from: from, to: to });
+            friendRequests = await this.friendRequestModel.find({ from: from, to: to });
         } catch (err) {
-            throw new NotFoundException('No friend request found with from : ' + from + ' and to : ' + to + '.\n Details => ' + err);
+            //No exception raised here because we want to return an empty array if there are no friend requests from this user
+            Logger.log('No friend requests found from this User : ' + from + ' to this User : ' + to + '.\n Details => ' + err);
         }
 
-        let friendRequestResponse: IFriendRequest;
+        let friendRequestsResponse: IFriendRequest[] = [];
 
-        if (friendRequest) {
-            friendRequestResponse = {
-                _id: friendRequest._id,
-                from: friendRequest.from,
-                to: friendRequest.to,
-                sendingDate: friendRequest.sendingDate,
-                status: friendRequest.status,
-            };
+        //If there are friend requests, we map them to a friendRequestResponse
+        if (friendRequests) {
+            friendRequestsResponse = friendRequests.map(friendRequest => {
+                return {
+                    _id: friendRequest._id,
+                    from: friendRequest.from,
+                    to: friendRequest.to,
+                    sendingDate: friendRequest.sendingDate,
+                    status: friendRequest.status,
+                };
+            });
         }
 
-        return friendRequestResponse;
+        return friendRequestsResponse;
     }
 
     async getFriendRequestsFrom(from: string): Promise<IFriendRequest[]> {
