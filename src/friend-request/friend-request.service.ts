@@ -217,32 +217,6 @@ export class FriendRequestService {
 
     }
 
-    async acceptRequestFromTo(from: string, to: string): Promise<string> {
-        //Check if the friend request exists
-        let friendRequestToAccept;
-        try {
-            friendRequestToAccept = await this.friendRequestModel.findOne({
-                from: from,
-                to: to,
-            });
-        } catch (err) {
-            throw new BadRequestException('Friend request does not exist');
-        }
-
-        //UPDATE FRIEND REQUEST TO ACCEPTED
-        let updatedRequest;
-        try {
-            updatedRequest = await this.friendRequestModel.updateOne(
-              { _id: friendRequestToAccept._id },
-              { status: RequestStatusEnum.ACCEPTED }
-            );
-        } catch (err) {
-            throw new BadRequestException('Could not update friend request. Details => ' + err);
-        }
-
-        return 'FriendRequest with id : ' + friendRequestToAccept._id + ' accepted';
-    }
-
     async refuseRequest(_id: string): Promise<string> {
         //Check if the friend request exists
         let friendRequestToDecline;
@@ -267,32 +241,6 @@ export class FriendRequestService {
 
     }
 
-    async refuseRequestFromTo(from: string, to: string) : Promise<string> {
-        //Check if the friend request exists
-        let friendRequestToDecline ;
-        try {
-            friendRequestToDecline = await this.friendRequestModel.findOne({
-                from: from,
-                to: to,
-            });
-        }catch(err) {
-            throw new BadRequestException('Friend request does not exist');
-        }
-
-        //UPDATE FRIEND REQUEST TO REFUSED
-        let updatedRequest ;
-        try{
-            updatedRequest = await this.friendRequestModel.updateOne(
-              {_id: friendRequestToDecline._id},
-              {status: RequestStatusEnum.REFUSED}
-            );
-        }catch(err) {
-            throw new BadRequestException('Could not refuse friend request. Details => ' + err);
-        }
-
-        return 'FriendRequest with id : ' + friendRequestToDecline._id + ' refused';
-    }
-
     async deleteOneById(_id: string): Promise<string> {
         let result;
         try {
@@ -303,7 +251,6 @@ export class FriendRequestService {
 
         return 'Friend request with id : ' + _id + ' deleted';
     }
-
 
     async deleteAllFrom(from: string): Promise<string> {
         let result;
@@ -316,7 +263,6 @@ export class FriendRequestService {
         return 'All Friend requests from : ' + from + ' deleted';
     }
 
-
     async deleteAllSentTo(to: string): Promise<string> {
         let result;
         try {
@@ -326,18 +272,6 @@ export class FriendRequestService {
         }
 
         return 'All Friend requests sent to : ' + to + ' deleted';
-    }
-
-
-    async deleteOneFromTo(from: string, to: string): Promise<string> {
-        let result;
-        try {
-            result = await this.friendRequestModel.deleteOne({ from: from, to: to });
-        } catch (err) {
-            throw new NotFoundException('No friend request found from : ' + from + ' to : ' + to + '. Details => ' + err);
-        }
-
-        return 'Friend request from : ' + from + ' to : ' + to + ' deleted';
     }
 
 

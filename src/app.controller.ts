@@ -3,7 +3,7 @@ import { AppService } from './app.service';
 import { ApiTags } from "@nestjs/swagger";
 
 @Controller()
-@ApiTags('AppHome')
+@ApiTags('App Home')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 

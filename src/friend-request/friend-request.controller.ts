@@ -18,7 +18,6 @@ import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendReque
 
 @Controller('friend-requests') //This is the path that will be used to access the controller
 @ApiTags('Friend Request') //SWAGGER : This is the name of the tag (onglet) that will be shown on swagger for this controller
-@UsePipes(ValidationPipe) //This will validate the type of DTOs that are being passed into the controller like @isString() or @isNotEmpty()
 export class FriendRequestController {
   constructor(private readonly friendRequestService: FriendRequestService) {}
 
@@ -44,7 +43,7 @@ export class FriendRequestController {
       default: '6461623bda2f1e3425116ed4',
     }
   })
-  async getFriendRequestById(@Param('_id') _id: string ) : Promise<IFriendRequest> { // We give a default value to _id so that we can test the route on swagger
+  async getFriendRequestById(@Param('_id') _id: string ) : Promise<IFriendRequest> {
     try {
       return await this.friendRequestService.getOneById(_id);
     } catch (err) {
@@ -54,7 +53,7 @@ export class FriendRequestController {
 
   @Get('fromTo')
   @ApiOperation({
-    description: 'Get one friend request by the sender and the receiver. Return 404 if no friend request is found.',
+    description: 'Get friend requests by the sender and the receiver. Return empty array if no friend requests are found.',
   })
   @ApiQuery({
     name: 'from',
@@ -75,7 +74,6 @@ export class FriendRequestController {
         throw new NotFoundException('Could not get friend request. Error: ' + err.message);
     }
   }
-
 
   @Get('from/:from')
   @ApiOperation({
@@ -173,12 +171,11 @@ export class FriendRequestController {
     }
   }
 
-
   @Delete('delete/:_id')
   @ApiOperation({
     description: 'Delete a friend request by its _id',
   })
-  async deleteRequest(@Param('_id') _id: string) {
+  async deleteRequest(@Param('_id') _id: string) : Promise<string>{
     try {
       return await this.friendRequestService.deleteOneById(_id);
     } catch (err) {

@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FriendRequestModule } from './friend-request/friend-request.module';
 import { GameInvitationModule } from './game-invitation/game-invitation.module';
+import { UserModule } from './user/user.module';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,6 +16,7 @@ const DB_URI = process.env.MONGO_URI;
     MongooseModule.forRoot(DB_URI),
     FriendRequestModule,
     GameInvitationModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

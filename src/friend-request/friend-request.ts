@@ -16,7 +16,6 @@ export const FriendRequestSchema = new mongoose.Schema({
   status: {
     type: String,
     default: RequestStatusEnum.PENDING,
-  },
-
+  }
 });
 
