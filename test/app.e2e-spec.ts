@@ -5,7 +5,7 @@ import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
-  // test workflow
+  console.log("test workflow");
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
