@@ -19,28 +19,7 @@ export const UserSchema = new mongoose.Schema({
     type: String,
     default: "Hello, I'm a new user !",
   },
-  gameSessions:{
-    type: [String],
-  },
   friendList : {
-    type: [String],
-  },
-  roomPartys: {
-    type: [String],
-  },
-  chatRooms:{
-    type: [String],
-  },
-  userGameResults:{
-    type: [String],
-  },
-  friendRequests:{
-    type: [String],
-  },
-  roomPartyInvitations:{
-    type: [String],
-  },
-  chatRoomInvitations:{
     type: [String],
   },
   status: {

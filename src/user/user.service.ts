@@ -12,12 +12,17 @@ import { IUser } from "../interfaces/IUser";
 import { SignUpDTO } from "./dto/request/SignUpDTO";
 import { AuthCredentialsDTO } from "./dto/request/AuthCredentialsDTO";
 import * as bcrypt from 'bcrypt';
+import { JwtService } from "@nestjs/jwt";
+import { IToken } from "../interfaces/IToken";
+import { IPayload } from "../interfaces/IPayload";
+import { UserStatusEnum } from "../enums/user-status-enum";
+import { UserRequestResponseDTO } from "./dto/response/UserRequestResponseDTO";
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly userModel: Model<IUser>) { }
+  constructor(@InjectModel('User') private readonly userModel: Model<IUser>, private jwtService : JwtService) { }
 
-  async create(signUpDTO : SignUpDTO) : Promise<IUser> {
+  async create(signUpDTO : SignUpDTO) : Promise<IToken> {
 
    //Check if the user already exists
     const isUserExistant : boolean = await this.isUserExistant(signUpDTO.pseudo);
@@ -40,33 +45,72 @@ export class UserService {
       throw new InternalServerErrorException('Error while saving the user')
     }
 
-    return createdUser ;
+    //CREATE THE TOKEN
+    const payload = {
+      pseudo: createdUser.pseudo,
+      subject: createdUser._id
+    }
+    const generatedToken: IToken = {
+      token: this.jwtService.sign(payload)
+    }
+
+    //TODO: Put the user status ONLINE
+    await this.updateUserStatus(createdUser.pseudo, UserStatusEnum.ONLINE);
+
+    return generatedToken;
   }
 
-  async signIn(authCredentialsDTO : AuthCredentialsDTO){
-    let user : IUser;
+  async signIn(authCredentialsDTO : AuthCredentialsDTO) : Promise<IToken>{
+
     const isUserValid = await this.isUserValid(authCredentialsDTO.pseudo, authCredentialsDTO.password);
 
     if(!isUserValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    //GET THE USER
-    try{
-      user = await this.userModel.findOne({pseudo: authCredentialsDTO.pseudo});
-    }catch(error) {
-      throw new InternalServerErrorException('Error while getting the user')
+    const user : IUser = await this.userModel.findOne({pseudo: authCredentialsDTO.pseudo});
+
+    const payload : IPayload = {
+      pseudo: user.pseudo,
+      subject: user._id
     }
 
-    //TODO : RETURN THE TOKEN + User.status.Connected
+    const generatedToken: IToken = {
+      token: this.jwtService.sign(payload)
+    }
 
-    //UPDATE THE USER STATUS
+    //Update the user status
+    await this.updateUserStatus(user.pseudo, UserStatusEnum.ONLINE);
 
-    //UPDATE THE USER TOKEN
+    return generatedToken;
+    //return 'User ' + user.pseudo + ' successfully connected';
+  }
 
-    //RETURN THE USER
+  async signOut(pseudo: string) : Promise<string> {
+    await this.updateUserStatus(pseudo, UserStatusEnum.OFFLINE);
+    return 'User ' + pseudo + ' successfully disconnected';
+  }
 
-    return 'User ' + user.pseudo + ' successfully connected';
+  async getAllUsers() : Promise<UserRequestResponseDTO[]> {
+    let users : IUser[];
+    try{
+      users = await this.userModel.find();
+    }catch(error) {
+      Logger.log('No users found\n Details => ' + error);
+    }
+
+    const usersResponse : UserRequestResponseDTO[] = users.map(user => {
+      return {
+        _id: user._id,
+        pseudo: user.pseudo,
+        email: user.email,
+        description: user.description,
+        friendList: user.friendList,
+        status: user.status
+      }
+    })
+
+    return usersResponse;
   }
 
 
@@ -94,5 +138,15 @@ export class UserService {
     }
 
     return true ;
+  }
+
+  private async updateUserStatus(pseudo: string, status: string) : Promise<void> {
+    const user = await this.userModel.findOne({pseudo: pseudo});
+    if(!user) {
+      throw new NotFoundException('User ' + pseudo + ' not found');
+    }
+
+    user.status = status;
+    await user.save();
   }
 }

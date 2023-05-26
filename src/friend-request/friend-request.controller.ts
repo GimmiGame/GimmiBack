@@ -8,19 +8,21 @@ import {
   Delete,
   ValidationPipe,
   BadRequestException,
-  UsePipes, NotFoundException, Query
+  UsePipes, NotFoundException, Query, UseGuards
 } from "@nestjs/common";
 import { FriendRequestService } from "./friend-request.service";
 import { CreateFriendRequestDTO } from "./dto/request/CreateFriendRequestDTO";
 import { ApiBody, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { IFriendRequest } from "../interfaces/IFriendRequest";
 import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller('friend-requests') //This is the path that will be used to access the controller
 @ApiTags('Friend Request') //SWAGGER : This is the name of the tag (onglet) that will be shown on swagger for this controller
 export class FriendRequestController {
   constructor(private readonly friendRequestService: FriendRequestService) {}
 
+  //@UseGuards(AuthGuard()) If you want to protect the route with the JWT strategy
   @Get('all')
   @ApiOperation({ //SWAGGER : This is the description that will be shown on swagger for this route
     description: 'Get all friend requests. Return empty array if no friend requests are found.'

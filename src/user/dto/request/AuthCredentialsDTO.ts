@@ -3,7 +3,7 @@ import { IsEmail, IsNotEmpty, IsString, Length } from "class-validator";
 
 export class AuthCredentialsDTO{
   @ApiProperty({
-    description: 'The pseudo of the user. Must be unique',
+    description: 'The pseudo of the user. Must be unique and length between 3 and 20',
     default: 'testPseudo'
   })
   @IsString()
@@ -12,7 +12,7 @@ export class AuthCredentialsDTO{
   pseudo: string;
 
   @ApiProperty({
-    description: 'The password of the user',
+    description: 'The password of the user. Length between 4 and 30',
     default: 'testPassword'
   })
   @IsString()
