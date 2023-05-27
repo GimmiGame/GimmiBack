@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGameInvitation } from 'src/interfaces/IGameInvitation';
@@ -120,6 +120,39 @@ export class GameInvitationService {
         }
         return gameInvitationsResponse;
     }
+
+    async getOneById(_id: string): Promise<IGameInvitation> {
+        let gameInvitation;
+        try {
+            gameInvitation = await this.gameInvitationModel.findById(_id);
+        } catch (err) {
+            throw new NotFoundException('No game invitation found with id : ' + _id + '.\n Details => ' + err);
+        }
+
+        let response: IGameInvitation;
+
+        if (gameInvitation) {
+            response = {
+                gameRoomID: gameInvitation.gameRoomID,
+                from: gameInvitation.from,
+                to: gameInvitation.to,
+                sendingDate: gameInvitation.sendingDate,
+                status: gameInvitation.status
+            };
+        }
+        return response;
+    }
+
+    async findAllGameInvitations(): Promise<string[]> {
+        let gameInvitationsList : string[] = [];
+        try {
+            gameInvitationsList = await this.gameInvitationModel.find();
+        } catch(err) {
+            Logger.log('No game invitations found.\n Details => ' + err);
+        }
+        return gameInvitationsList;
+    }
+
 
 
 }

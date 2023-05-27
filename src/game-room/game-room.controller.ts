@@ -1,13 +1,45 @@
 import { BadRequestException, Body, Controller, NotFoundException, Param, Patch, Post, Get, Query, Delete } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GameRoomService } from './game-room.service';
 import { CreateGameRoomRequestDTO } from './dto/request/CreateGameRoomRequestDTO';
 import { CreateGameRoomResponseDTO } from './dto/response/CreateGameRoomResponseDTO';
+import { IGameInvitation } from 'src/interfaces/IGameInvitation';
+import { IGameRoom } from 'src/interfaces/IGameRoom';
 
 @Controller('game-room')
 @ApiTags('GameRoom')
 export class GameRoomController {
     constructor(private readonly gameRoomService: GameRoomService) {}
+
+    @Get('findAll')
+    @ApiOperation({
+        description: 'Find all game rooms.',
+    })
+    async findAllGameRooms() : Promise<string[]> {
+        try {
+            return await this.gameRoomService.findAllGameRooms();
+        } catch(err) {
+            throw new NotFoundException('No game rooms found. Error: ' + err.message);
+        }
+    }
+
+    @Get('id/:_id')
+    @ApiOperation({
+        description: 'Get the game room by its id. Return 404 if no game room request is found.',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+        default: '6471294f74ae51832b3483e5',
+        }
+    })
+    async getGameRoomById(@Param('_id') _id: string ) : Promise<IGameRoom> {
+        try {
+            return await this.gameRoomService.getOneById(_id);
+        } catch(err) {
+            throw new NotFoundException('Could not get invitation request. Error: ' + err.message);
+        }
+    }
 
     @Post('create')
     @ApiOperation({
@@ -54,18 +86,6 @@ export class GameRoomController {
             return await this.gameRoomService.joinGameRoom(id,pseudo);
         } catch(err) {
             throw new NotFoundException('Could not join the game room. Error: ' + err.message);
-        }
-    }
-
-    @Get('findAll')
-    @ApiOperation({
-        description: 'Find all game rooms.',
-    })
-    async findAllGameRooms() : Promise<string[]> {
-        try {
-            return await this.gameRoomService.findAllGameRooms();
-        } catch(err) {
-            throw new NotFoundException('No game rooms found. Error: ' + err.message);
         }
     }
 

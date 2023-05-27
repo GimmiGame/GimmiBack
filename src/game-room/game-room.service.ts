@@ -92,4 +92,30 @@ export class GameRoomService {
         return 'Game room with id : ' + _id + ' deleted';
     }
 
+    async getOneById(_id: string): Promise<IGameRoom> {
+        let gameRoom;
+        try {
+            gameRoom = await this.gameRoomModel.findById(_id);
+        } catch (err) {
+            throw new NotFoundException('No game room found with id : ' + _id + '.\n Details => ' + err);
+        }
+
+        let response: IGameRoom;
+
+        if (gameRoom) {
+            response = {
+                _id: gameRoom._id,
+                roomName: gameRoom.roomName,
+                game: gameRoom.game,
+                players: gameRoom.players,
+                creator: gameRoom.creator,
+                gameStarted: gameRoom.gameStarted,
+                gameTerminated: gameRoom.gameTerminated,
+                gameSaved: gameRoom.gameSaved,
+            };
+        }
+
+        return response;
+    }
+
 }

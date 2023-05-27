@@ -12,6 +12,58 @@ export class GameInvitationController {
 
     constructor(private readonly gameInvitationService: GameInvitationService) {}
 
+    @Get('invitations/:username')
+    @ApiOperation({
+        description: 'The pseudo of the user to see all pending invitations. Return empty array if no invitation requests are found.',
+    })
+    @ApiParam({
+        name: 'username',
+        schema: {
+            default: 'test3',
+        }
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'The invitation requests have been successfully retrieved.',
+    })
+    async getAllPendingInvitationsForThisUser(@Param('username') to: string) : Promise<IGameInvitation[]>{
+        try {
+            return await this.gameInvitationService.getAllPendingInvitationsRequestsForUser(to);
+        } catch (err) {
+            throw new NotFoundException('Could not get invitation requests of this user. Error: ' + err.message);
+        }
+    }
+
+    @Get('id/:_id')
+    @ApiOperation({
+        description: 'Get the game invitation by its id. Return 404 if no game invitation is found.',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+        default: '64725edd894e72824610e304',
+        }
+    })
+    async getGameRoomById(@Param('_id') _id: string ) : Promise<IGameInvitation> {
+        try {
+            return await this.gameInvitationService.getOneById(_id);
+        } catch(err) {
+            throw new NotFoundException('Could not get invitation request. Error: ' + err.message);
+        }
+    }
+
+    @Get('findAll')
+    @ApiOperation({
+        description: 'Find all game invitations.',
+    })
+    async findAllGameInvitations() : Promise<string[]> {
+        try {
+            return await this.gameInvitationService.findAllGameInvitations();
+        } catch(err) {
+            throw new NotFoundException('No game invitations found. Error: ' + err.message);
+        }
+    }
+
     @Post('create')
     @ApiOperation({
         description: 'Create a new game invitation request.',
@@ -68,28 +120,6 @@ export class GameInvitationController {
         return await this.gameInvitationService.refuseRequest(_id);
         } catch (err) {
             throw new NotFoundException('Could not reject invitation. Error: ' + err.message);
-        }
-    }
-
-    @Get('invitations/:username')
-    @ApiOperation({
-        description: 'The pseudo of the user to see all pending invitations. Return empty array if no invitation requests are found.',
-    })
-    @ApiParam({
-        name: 'username',
-        schema: {
-            default: 'test3',
-        }
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'The invitation requests have been successfully retrieved.',
-    })
-    async getAllPendingInvitationsForThisUser(@Param('username') to: string) : Promise<IGameInvitation[]>{
-        try {
-            return await this.gameInvitationService.getAllPendingInvitationsRequestsForUser(to);
-        } catch (err) {
-            throw new NotFoundException('Could not get invitation requests of this user. Error: ' + err.message);
         }
     }
     
