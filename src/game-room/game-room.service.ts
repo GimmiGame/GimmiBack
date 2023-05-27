@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGameRoom } from 'src/interfaces/IGameRoom';
@@ -79,6 +79,17 @@ export class GameRoomService {
             gameRoom.save()
         }
         return gameRoom.players
+    }
+
+    async deleteGameRoom(_id: string): Promise<string> {
+        let result;
+        try {
+            result = await this.gameRoomModel.deleteOne({ _id: _id });
+        } catch (err) {
+            throw new NotFoundException('No game room found with id : ' + _id + '. Details => ' + err);
+        }
+
+        return 'Game room with id : ' + _id + ' deleted';
     }
 
 }

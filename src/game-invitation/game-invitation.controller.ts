@@ -1,4 +1,96 @@
-import { Controller } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { GameInvitationService } from './game-invitation.service';
+import { GameRoomInvitationRequestDTO } from './dto/GameInvitationRequestDTO';
+import { GameRoomInvitationResponseDTO } from './dto/GameInvitationResponseDTO';
+import { IFriendRequest } from 'src/interfaces/IFriendRequest';
+import { IGameInvitation } from 'src/interfaces/IGameInvitation';
 
 @Controller('game-invitation')
-export class GameInvitationController {}
+@ApiTags('Game Invitation ')
+export class GameInvitationController {
+
+    constructor(private readonly gameInvitationService: GameInvitationService) {}
+
+    @Post('create')
+    @ApiOperation({
+        description: 'Create a new game invitation request.',
+    })
+    @ApiBody({
+        type: GameRoomInvitationRequestDTO
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'The friend request has been successfully created.',
+        type: GameRoomInvitationResponseDTO
+    })  
+    async createRequest(@Body() gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<GameRoomInvitationResponseDTO> {
+        try {
+            return await this.gameInvitationService.createGameRoomInvitationRequest(gameRoomInvitationRequestDTO);
+        }
+        catch(err) {
+            throw new BadRequestException('Could not create game invitation request. Error: ' + err.message);
+        }
+    }
+
+    @Patch('accept/:_id')
+    @ApiOperation({
+        description: 'Accept a friend request',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+            default: '647265195dc8155d951d3a9c',
+        }
+    })
+    async acceptRequest(@Param('_id') _id: string) : Promise<string>{
+        try {
+        return await this.gameInvitationService.acceptRequest(_id);
+        } catch (err) {
+            throw new NotFoundException('Could not accept invitation request. Error: ' + err.message);
+        }
+    }
+
+
+
+    @Patch('refuse/:_id')
+    @ApiOperation({
+        description: 'Refuse a game room invitation by giving the its _id',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+            default: '647265195dc8155d951d3a9c',
+        }
+    })
+    async refuseRequest(@Param('_id') _id: string) : Promise<string>{
+        try {
+        return await this.gameInvitationService.refuseRequest(_id);
+        } catch (err) {
+            throw new NotFoundException('Could not reject invitation. Error: ' + err.message);
+        }
+    }
+
+    @Get('invitations/:username')
+    @ApiOperation({
+        description: 'The pseudo of the user to see all pending invitations. Return empty array if no invitation requests are found.',
+    })
+    @ApiParam({
+        name: 'username',
+        schema: {
+            default: 'test3',
+        }
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'The invitation requests have been successfully retrieved.',
+    })
+    async getAllPendingInvitationsForThisUser(@Param('username') to: string) : Promise<IGameInvitation[]>{
+        try {
+            return await this.gameInvitationService.getAllPendingInvitationsRequestsForUser(to);
+        } catch (err) {
+            throw new NotFoundException('Could not get invitation requests of this user. Error: ' + err.message);
+        }
+    }
+    
+}

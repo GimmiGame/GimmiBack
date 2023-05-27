@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, NotFoundException, Param, Patch, Post, Get, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, NotFoundException, Param, Patch, Post, Get, Query, Delete } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GameRoomService } from './game-room.service';
 import { CreateGameRoomRequestDTO } from './dto/request/CreateGameRoomRequestDTO';
@@ -94,6 +94,18 @@ export class GameRoomController {
             return await this.gameRoomService.exitGameRoom(id,pseudo);
         } catch(err) {
             throw new BadRequestException('Something went wrong. Error: ' + err.message);
+        }
+    }
+
+    @Delete('delete/:_id')
+    @ApiOperation({
+        description: 'Delete a game room by its _id',
+    })
+    async deleteGameRoom(@Param('_id') _id: string) : Promise<string>{
+        try {
+        return await this.gameRoomService.deleteGameRoom(_id);
+        } catch (err) {
+            throw new NotFoundException('Could not delete friend request. Error: ' + err.message);
         }
     }
 }
