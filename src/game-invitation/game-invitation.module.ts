@@ -4,6 +4,7 @@ import { GameInvitationService } from './game-invitation.service';
 import { UserModule } from 'src/user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GameInvitationSchema } from './game-invitation';
+import { GameRoomModule } from 'src/game-room/game-room.module';
 
 @Module({
   imports:[
@@ -11,7 +12,8 @@ import { GameInvitationSchema } from './game-invitation';
     MongooseModule.forFeature([{
       name: 'GameInvitationRequest',
       schema: GameInvitationSchema
-    }])
+    }]),
+    GameRoomModule
   ],
   controllers: [GameInvitationController],
   providers: [GameInvitationService]

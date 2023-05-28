@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGameInvitation } from 'src/interfaces/IGameInvitation';
@@ -6,11 +6,13 @@ import { GameRoomInvitationRequestDTO } from './dto/GameInvitationRequestDTO';
 import { GameRoomInvitationResponseDTO } from './dto/GameInvitationResponseDTO';
 import { format } from 'date-fns';
 import RequestStatusEnum from 'src/enums/request-status-enum';
+import { IGameRoom } from 'src/interfaces/IGameRoom';
+import { GameRoomService } from 'src/game-room/game-room.service';
 
 @Injectable()
 export class GameInvitationService {
 
-    constructor(@InjectModel('GameInvitationRequest') private readonly gameInvitationModel: Model<IGameInvitation>) {}
+    constructor(@InjectModel('GameInvitationRequest') private readonly gameInvitationModel: Model<IGameInvitation>, private readonly gameRoomService: GameRoomService) {}
     
     async createGameRoomInvitationRequest(gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<GameRoomInvitationResponseDTO> {
         let existingGameInvitationRequest;
@@ -48,8 +50,8 @@ export class GameInvitationService {
         }
 
         let createdRequest: GameRoomInvitationResponseDTO = {
-            gameRoomID: savedRequest._id,
-            message: 'Game invitation send with id : ' + savedRequest._id + ' from ' + newInvitationRequest.from + ' to ' + newInvitationRequest.to,
+            roomInvitationID: savedRequest._id,
+            message: 'Game invitation send with id : ' + savedRequest._id + ' from ' + newInvitationRequest.from + ' to ' + newInvitationRequest.to + ' for the room with id : ' + newInvitationRequest.gameRoomID,
         }
         return createdRequest;
     }
@@ -58,7 +60,7 @@ export class GameInvitationService {
         let gameRoomInvitationToAccept;
         try {
             gameRoomInvitationToAccept = await this.gameInvitationModel.findById(_id);
-            if(gameRoomInvitationToAccept.status === 'REFUSED') throw new BadRequestException('Invitation was already refused');
+            if(gameRoomInvitationToAccept.status === 'REFUSED') throw new BadRequestException('Invitation was already refused');           
         } catch(err) {
             throw new BadRequestException('Game room does not exist');
         }
@@ -73,7 +75,24 @@ export class GameInvitationService {
             throw new BadRequestException('Could not update friend request. Details => ' + err);
         }
 
-        return 'Game invitation for the room with id : ' + gameRoomInvitationToAccept._id + ' accepted by ' + gameRoomInvitationToAccept.to;
+        let gameRoom;
+        try {
+            gameRoom = await this.gameRoomService.getOneById(gameRoomInvitationToAccept.gameRoomID);
+            gameRoom.players.push(gameRoomInvitationToAccept.to);
+        }
+        catch(err) {
+            throw new BadRequestException('Could not find the game room  to update after the invitation was accepted. Details => ' + err);
+        }
+
+        let gameRoomUpdateRequest;
+        try {
+            gameRoomUpdateRequest = await this.gameRoomService.updateGameRoom(gameRoom);
+        }
+        catch(err) {
+            throw new InternalServerErrorException('Could not update the game room after the invitation was accepted. Details => ' + err);
+        }
+
+        return 'Game invitation with id ' + gameRoomInvitationToAccept._id + ' for the room with id : ' + gameRoomInvitationToAccept.gameRoomID + ' accepted by ' + gameRoomInvitationToAccept.to;
     }
 
     async refuseRequest(_id: string): Promise<string> {
@@ -94,6 +113,12 @@ export class GameInvitationService {
         } catch (err) {
             throw new BadRequestException('Could not refuse invitation. Details => ' + err);
         }
+        try {
+            await this.gameInvitationModel.deleteOne({_id: _id});
+        }
+        catch(err) {
+            throw new InternalServerErrorException('Could not delete invitation after it was refused. Details => ' + err);
+        }
 
         return 'Game room invitation with id : ' + invitationRequestToDecline._id + ' refused by ' + invitationRequestToDecline.to;
     }
@@ -110,6 +135,7 @@ export class GameInvitationService {
         if(gameInvitationRequests) {
             gameInvitationsResponse = gameInvitationRequests.map(gameInvitationRequests => {
                 return {
+                    _id: gameInvitationRequests._id,
                     gameRoomID: gameInvitationRequests.gameRoomID,
                     from: gameInvitationRequests.from,
                     to: gameInvitationRequests.to,
@@ -133,6 +159,7 @@ export class GameInvitationService {
 
         if (gameInvitation) {
             response = {
+                _id: _id,
                 gameRoomID: gameInvitation.gameRoomID,
                 from: gameInvitation.from,
                 to: gameInvitation.to,

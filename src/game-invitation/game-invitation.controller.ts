@@ -14,10 +14,11 @@ export class GameInvitationController {
 
     @Get('invitations/:username')
     @ApiOperation({
-        description: 'The pseudo of the user to see all pending invitations. Return empty array if no invitation requests are found.',
+        description: 'Get all pending invitations of a user',
     })
     @ApiParam({
         name: 'username',
+        description: 'The pseudo of the user to see all pending invitations. Return empty array if no invitation requests are found.',
         schema: {
             default: 'test3',
         }

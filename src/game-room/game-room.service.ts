@@ -118,4 +118,18 @@ export class GameRoomService {
         return response;
     }
 
+    async updateGameRoom(gameRoom: IGameRoom): Promise<IGameRoom> {
+        
+        let updatedRequest;
+        try {
+            updatedRequest = await this.gameRoomModel.updateOne(
+                {_id: gameRoom._id},
+                {players: gameRoom.players}
+            );
+        } catch (err) {
+            throw new BadRequestException('Could not update game room. Details => ' + err);
+        }
+        return updatedRequest;
+    }
+
 }

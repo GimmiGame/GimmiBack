@@ -14,6 +14,7 @@ import { GameRoomSchema } from './game-room';
     }])
   ],
   providers: [GameRoomService],
-  controllers: [GameRoomController]
+  controllers: [GameRoomController],
+  exports: [GameRoomService]
 })
 export class GameRoomModule {}
