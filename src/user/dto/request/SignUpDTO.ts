@@ -14,10 +14,9 @@ export class SignUpDTO {
   @ApiProperty({
     description: 'The email of the user. Optional but unique',
   })
-  @IsString()
   @IsEmail()
   @IsOptional()
-  email: string;
+  email: string | null;
 
   @ApiProperty({
     description: 'The password of the user',

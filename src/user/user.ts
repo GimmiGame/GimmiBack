@@ -7,7 +7,7 @@ export const UserSchema = new mongoose.Schema({
     unique: true,
   },
   email: {
-    type: String,
+    type: String || null,
     default: null,
   },
   password: {
