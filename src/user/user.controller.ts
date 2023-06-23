@@ -3,10 +3,10 @@ import {
   ConflictException,
   Controller, Get, HttpException,
   InternalServerErrorException, NotFoundException, Param, Patch,
-  Post,
+  Post, Query,
   UnauthorizedException
 } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateUserDTO } from "./dto/request/CreateUserDTO";
 import { UserService } from "./user.service";
 import { AuthCredentialsDTO } from "./dto/request/AuthCredentialsDTO";
@@ -31,7 +31,7 @@ export class UserController {
     try {
       return await this.userService.create(signUpDTO);
     } catch (error) {
-      switch(error.code) {
+      switch(error.statusCode) {
         case 409:
           throw new ConflictException(error.message);
         case 500:
@@ -82,6 +82,74 @@ export class UserController {
   async getAllUsers() : Promise<UserRequestResponseDTO[]>{
     try {
       return await this.userService.getAllUsers();
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @Get('pseudo/:pseudo')
+  @ApiOperation({ summary: 'Get a user by its pseudo' })
+  @ApiParam({
+    name: 'pseudo',
+    type: String,
+    schema: {
+      default: 'testPseudo'
+    }
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'The user has been successfully retrieved.',
+    type: UserRequestResponseDTO
+  })
+  async getUserByPseudo(@Param('pseudo') pseudo: string) : Promise<UserRequestResponseDTO>{
+    try {
+      return await this.userService.getUserByPseudo(pseudo);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @Patch('addFriend')
+  @ApiOperation({ summary: 'Add 2 friend in their owns friends lists' })
+  @ApiQuery({
+    name: 'pseudo',
+    schema: {
+      default: 'testPseudo',
+    }
+  })
+  @ApiQuery({
+    name: 'friendPseudo',
+    schema: {
+      default: 'testFriend'
+    }
+  })
+  async addToFriendList(@Query('pseudo') pseudo: string, @Query('friendPseudo') friendPseudo: string) : Promise<string>{
+    try {
+      return await this.userService.addFriend(pseudo, friendPseudo);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @Patch('removeFriend')
+  @ApiOperation({ summary: 'Remove 2 friend from their owns friends lists ' })
+  @ApiQuery({
+    name: 'pseudo',
+    type: String,
+    schema: {
+      default: 'testPseudo'
+    }
+  })
+  @ApiQuery({
+    name: 'friendPseudo',
+    type: String,
+    schema: {
+      default: 'testFriend'
+    }
+  })
+  async removeFromFriendList(@Query('pseudo') pseudo: string, @Query('friendPseudo') friendPseudo: string) : Promise<string>{
+    try {
+      return await this.userService.removeFriend(pseudo, friendPseudo);
     } catch (error) {
       throw new NotFoundException(error.message);
     }
