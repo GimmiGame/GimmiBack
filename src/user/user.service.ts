@@ -106,7 +106,6 @@ export class UserService {
         pseudo: user.pseudo,
         email: user.email,
         description: user.description,
-        friendList: user.friendList,
         status: user.status
       }
     })
@@ -127,53 +126,13 @@ export class UserService {
       pseudo: user.pseudo,
       email: user.email,
       description: user.description,
-      friendList: user.friendList,
       status: user.status
     }
 
     return userResponse;
   }
 
-  async addFriend(pseudo: string ,friendPseudo: string) : Promise<string> {
-    try{
-      const user = await this.userModel.findOne({pseudo: pseudo});
-      const friend = await this.userModel.findOne({pseudo: friendPseudo});
-      if(!user) {
-        throw new NotFoundException('User ' + pseudo + ' not found');
-      }
-      if(!friend) {
-        throw new NotFoundException('Friend to add ' + friendPseudo + ' not found');
-      }
-      user.friendList.push(friendPseudo);
-      friend.friendList.push(pseudo);
-      await user.save();
-      await friend.save();
-    }catch(error) {
-      Logger.log('Error while adding friend\n Details => ' + error);
-    }
-    return 'Friend ' + friendPseudo + ' successfully added';
-  }
 
-  async removeFriend(pseudo: string ,friendPseudo: string) : Promise<string> {
-    try{
-      const user = await this.userModel.findOne({pseudo: pseudo});
-      const friend = await this.userModel.findOne({pseudo: friendPseudo});
-      if(!user) {
-        throw new NotFoundException('User ' + pseudo + ' not found');
-      }
-      if(!friend) {
-        throw new NotFoundException('Friend to remove ' + friendPseudo + ' not found');
-      }
-      user.friendList = user.friendList.filter(friend => friend !== friendPseudo);
-      friend.friendList = friend.friendList.filter(friend => friend !== pseudo);
-      await user.save();
-      await friend.save();
-    }catch(error) {
-      Logger.log('Error while removing friend\n Details => ' + error);
-    }
-
-    return 'Friend ' + friendPseudo + ' successfully removed';
-  }
 
 
 

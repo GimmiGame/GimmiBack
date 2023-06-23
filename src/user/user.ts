@@ -1,5 +1,6 @@
 import * as mongoose from "mongoose";
 import { UserStatusEnum } from "../enums/user-status-enum";
+
 export const UserSchema = new mongoose.Schema({
   pseudo: {
     type: String,
@@ -18,11 +19,13 @@ export const UserSchema = new mongoose.Schema({
     type: String,
     default: "Hello, I'm a new user !",
   },
-  friendList : {
-    type: [String],
-  },
   status: {
     type: String,
     default: UserStatusEnum.OFFLINE,
   }
 })
+
+
+
+
+

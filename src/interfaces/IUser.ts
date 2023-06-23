@@ -4,6 +4,5 @@ export interface IUser {
   email: string | null
   password: string;
   description: string;
-  friendList: string[];
   status: string;
 }

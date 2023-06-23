@@ -21,11 +21,6 @@ export class UserRequestResponseDTO {
   description: string;
 
   @ApiProperty({
-    type: [String]
-  })
-  friendList: string[];
-
-  @ApiProperty({
     type: String
   })
   status: string;
