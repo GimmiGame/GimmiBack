@@ -3,8 +3,8 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/s
 import { GameInvitationService } from './game-invitation.service';
 import { GameRoomInvitationRequestDTO } from './dto/GameInvitationRequestDTO';
 import { GameRoomInvitationResponseDTO } from './dto/GameInvitationResponseDTO';
-import { IFriendRequest } from 'src/interfaces/IFriendRequest';
-import { IGameInvitation } from 'src/interfaces/IGameInvitation';
+import { IFriendRequest } from 'src/_interfaces/IFriendRequest';
+import { IGameInvitation } from 'src/_interfaces/IGameInvitation';
 
 @Controller('game-invitations')
 @ApiTags('Game Invitation ')

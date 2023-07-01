@@ -8,13 +8,13 @@ import {
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { IUser } from "../interfaces/IUser";
+import { IUser } from "../_interfaces/IUser";
 import { SignUpDTO } from "./dto/request/SignUpDTO";
 import { AuthCredentialsDTO } from "./dto/request/AuthCredentialsDTO";
 import * as bcrypt from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
-import { IToken } from "../interfaces/IToken";
-import { IPayload } from "../interfaces/IPayload";
+import { IToken } from "../_interfaces/IToken";
+import { IPayload } from "../_interfaces/IPayload";
 import { UserStatusEnum } from "../enums/user-status-enum";
 import { UserRequestResponseDTO } from "./dto/response/UserRequestResponseDTO";
 

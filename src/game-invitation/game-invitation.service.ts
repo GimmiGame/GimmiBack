@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IGameInvitation } from 'src/interfaces/IGameInvitation';
+import { IGameInvitation } from 'src/_interfaces/IGameInvitation';
 import { GameRoomInvitationRequestDTO } from './dto/GameInvitationRequestDTO';
 import { GameRoomInvitationResponseDTO } from './dto/GameInvitationResponseDTO';
 import { format } from 'date-fns';
 import RequestStatusEnum from 'src/enums/request-status-enum';
-import { IGameRoom } from 'src/interfaces/IGameRoom';
+import { IGameRoom } from 'src/_interfaces/IGameRoom';
 import { GameRoomService } from 'src/game-room/game-room.service';
 
 @Injectable()

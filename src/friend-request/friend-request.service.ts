@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from "@nes
 import { InjectModel } from '@nestjs/mongoose';
 import {format} from 'date-fns';
 import { Model } from "mongoose";
-import { IFriendRequest } from "../interfaces/IFriendRequest";
+import { IFriendRequest } from "../_interfaces/IFriendRequest";
 import { CreateFriendRequestDTO } from "./dto/request/CreateFriendRequestDTO";
 import RequestStatusEnum from "../enums/request-status-enum";
 import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";

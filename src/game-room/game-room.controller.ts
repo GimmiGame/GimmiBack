@@ -3,8 +3,8 @@ import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from 
 import { GameRoomService } from './game-room.service';
 import { CreateGameRoomRequestDTO } from './dto/request/CreateGameRoomRequestDTO';
 import { CreateGameRoomResponseDTO } from './dto/response/CreateGameRoomResponseDTO';
-import { IGameInvitation } from 'src/interfaces/IGameInvitation';
-import { IGameRoom } from 'src/interfaces/IGameRoom';
+import { IGameInvitation } from 'src/_interfaces/IGameInvitation';
+import { IGameRoom } from 'src/_interfaces/IGameRoom';
 
 @Controller('game-rooms')
 @ApiTags('GameRoom')

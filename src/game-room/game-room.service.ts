@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { IGameRoom } from 'src/interfaces/IGameRoom';
+import { IGameRoom } from 'src/_interfaces/IGameRoom';
 import { CreateGameRoomRequestDTO } from './dto/request/CreateGameRoomRequestDTO';
 import { CreateGameRoomResponseDTO } from './dto/response/CreateGameRoomResponseDTO';
 

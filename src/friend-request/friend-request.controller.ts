@@ -13,7 +13,7 @@ import {
 import { FriendRequestService } from "./friend-request.service";
 import { CreateFriendRequestDTO } from "./dto/request/CreateFriendRequestDTO";
 import { ApiBody, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { IFriendRequest } from "../interfaces/IFriendRequest";
+import { IFriendRequest } from "../_interfaces/IFriendRequest";
 import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";
 import { AuthGuard } from "@nestjs/passport";
 

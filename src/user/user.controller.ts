@@ -10,9 +10,9 @@ import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from 
 import { CreateUserDTO } from "./dto/request/CreateUserDTO";
 import { UserService } from "./user.service";
 import { AuthCredentialsDTO } from "./dto/request/AuthCredentialsDTO";
-import { IToken } from "../interfaces/IToken";
+import { IToken } from "../_interfaces/IToken";
 import { SignUpDTO } from "./dto/request/SignUpDTO";
-import { IUser } from "../interfaces/IUser";
+import { IUser } from "../_interfaces/IUser";
 import { UserRequestResponseDTO } from "./dto/response/UserRequestResponseDTO";
 
 @Controller('users')
