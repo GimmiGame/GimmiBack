@@ -23,7 +23,8 @@ export class FriendRequestController {
   constructor(private readonly friendRequestService: FriendRequestService) {}
 
   //@UseGuards(AuthGuard()) If you want to protect the route with the JWT strategy
-  @Get('all')
+
+  /*@Get('all')
   @ApiOperation({ //SWAGGER : This is the description that will be shown on swagger for this route
     description: 'Get all friend requests. Return empty array if no friend requests are found.'
   })
@@ -207,7 +208,7 @@ export class FriendRequestController {
     } catch (err) {
         throw new NotFoundException('Could not delete friend requests. Error: ' + err.message);
     }
-  }
+  }*/
 
 
   // @Patch('refuse/fromTo')

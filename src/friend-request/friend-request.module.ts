@@ -15,6 +15,7 @@ import { UserModule } from "../user/user.module";
     }])
   ],
   controllers: [FriendRequestController],
-  providers: [FriendRequestService]
+  providers: [FriendRequestService],
+  exports: [FriendRequestService]
 })
 export class FriendRequestModule {}

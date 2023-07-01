@@ -6,7 +6,7 @@ import { GameRoomInvitationResponseDTO } from './dto/GameInvitationResponseDTO';
 import { IFriendRequest } from 'src/interfaces/IFriendRequest';
 import { IGameInvitation } from 'src/interfaces/IGameInvitation';
 
-@Controller('game-invitation')
+@Controller('game-invitations')
 @ApiTags('Game Invitation ')
 export class GameInvitationController {
 

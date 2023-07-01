@@ -6,6 +6,7 @@ import { FriendRequestModule } from './friend-request/friend-request.module';
 import { GameInvitationModule } from './game-invitation/game-invitation.module';
 import { UserModule } from './user/user.module';
 import { GameRoomModule } from './game-room/game-room.module';
+import { FriendListModule } from './friend-list/friend-list.module';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,6 +20,7 @@ const DB_URI = process.env.MONGO_URI;
     GameInvitationModule,
     UserModule,
     GameRoomModule,
+    FriendListModule,
   ],
   controllers: [AppController],
   providers: [AppService],

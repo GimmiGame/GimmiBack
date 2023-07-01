@@ -6,7 +6,7 @@ import { CreateGameRoomResponseDTO } from './dto/response/CreateGameRoomResponse
 import { IGameInvitation } from 'src/interfaces/IGameInvitation';
 import { IGameRoom } from 'src/interfaces/IGameRoom';
 
-@Controller('game-room')
+@Controller('game-rooms')
 @ApiTags('GameRoom')
 export class GameRoomController {
     constructor(private readonly gameRoomService: GameRoomService) {}

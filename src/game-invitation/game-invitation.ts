@@ -21,5 +21,8 @@ export const GameInvitationSchema = new mongoose.Schema({
         type: String,
         default: RequestStatusEnum.PENDING,
       }
-
 })
+
+
+
+

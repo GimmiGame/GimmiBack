@@ -3,7 +3,8 @@ import { GameRoomService } from './game-room.service';
 import { GameRoomController } from './game-room.controller';
 import { UserModule } from 'src/user/user.module';
 import { MongooseModule } from "@nestjs/mongoose";
-import { GameRoomSchema } from './game-room';
+import { GameRoomSchema } from "./game-room";
+
 
 @Module({
   imports:[

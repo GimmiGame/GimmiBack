@@ -16,6 +16,7 @@ import { GameRoomModule } from 'src/game-room/game-room.module';
     GameRoomModule
   ],
   controllers: [GameInvitationController],
-  providers: [GameInvitationService]
+  providers: [GameInvitationService],
+  exports: [GameInvitationService]
 })
 export class GameInvitationModule {}
