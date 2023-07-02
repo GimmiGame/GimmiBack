@@ -69,7 +69,133 @@ export class FriendListService {
 
   }
 
-  async createFriendList(owner : string ): Promise<IFriendList> {
+  //Add friend to friend list of owner and add owner to friend list of friend
+  async acceptFriendshipOfUsers(owner: string, friend: string): Promise<String> {
+
+      //Check if owner exists
+      const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
+      if(!ownerUser) {
+        throw new BadRequestException('Owner does not exist');
+      }
+
+      //Check if friend exists
+      const friendUser : IUser = await this.userModel.findOne({pseudo: friend});
+      if(!friendUser) {
+        throw new BadRequestException('Friend does not exist');
+      }
+
+      //Check if friend list exists for this user and create it if not
+      let existingFriendList = await this.friendListModel.findOne({ owner: ownerUser._id });
+      if (!existingFriendList) {
+        await this.createFriendList(owner);
+        existingFriendList = await this.friendListModel.findOne({ owner: ownerUser._id });
+      }
+
+      //Check if friend is already in friend list
+      if(existingFriendList.friends.includes(friendUser._id)) {
+        throw new BadRequestException('Friend is already in friend list');
+      }
+
+      //Add friend to friend list
+      existingFriendList.friends.push(friendUser._id);
+
+      //Save friend list
+      try {
+        await existingFriendList.save();
+      }
+      catch (e) {
+        throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
+      }
+
+      //Check if friend list exists for this user
+      let existingFriendList2 = await this.friendListModel.findOne({ owner: friendUser._id });
+      if (!existingFriendList2) {
+        await this.createFriendList(friend);
+        existingFriendList2 = await this.friendListModel.findOne({ owner: friendUser._id });
+      }
+
+      //Check if friend is already in friend list
+      if(existingFriendList2.friends.includes(ownerUser._id)) {
+        throw new BadRequestException('Friend is already in friend list');
+      }
+
+      //Add friend to friend list
+      existingFriendList2.friends.push(ownerUser._id);
+
+      //Save friend list
+      try {
+        await existingFriendList2.save();
+      }
+      catch (e) {
+        throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
+      }
+
+      return 'Frienship started between ' + owner + ' and ' + friend;
+  }
+
+  async suppressFriendshipOfUsers(owner: string, friend: string): Promise<String> {
+
+    //Check if owner exists
+    const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
+    if(!ownerUser) {
+      throw new BadRequestException('Owner does not exist');
+    }
+
+    //Check if friend exists
+    const friendUser : IUser = await this.userModel.findOne({pseudo: friend});
+    if(!friendUser) {
+      throw new BadRequestException('Friend does not exist');
+    }
+
+    //Check if friend list exists for this user
+    const existingFriendList = await this.friendListModel.findOne({ owner: ownerUser._id });
+    if (!existingFriendList) {
+      throw new BadRequestException('Friend list does not exist');
+    }
+
+    //Check if friend is already in friend list
+    if(!existingFriendList.friends.includes(friendUser._id)) {
+      throw new BadRequestException('Friend is not in friend list');
+    }
+
+    //Remove friend from friend list
+    existingFriendList.friends = existingFriendList.friends.filter(friend => friend.toString() !== friendUser._id.toString());
+
+    //Save friend list
+    try {
+      await existingFriendList.save();
+    }
+    catch (e) {
+      throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
+    }
+
+    //Check if friend list exists for this user
+    const existingFriendListFriend = await this.friendListModel.findOne({ owner: friendUser._id });
+    if (!existingFriendListFriend) {
+      throw new BadRequestException('Friend list does not exist');
+    }
+
+    //Check if friend is already in friend list
+    if(!existingFriendListFriend.friends.includes(ownerUser._id)) {
+      throw new BadRequestException('Friend is not in friend list');
+    }
+
+    //Remove friend from friend list
+    existingFriendListFriend.friends = existingFriendListFriend.friends.filter(friend => friend.toString() !== ownerUser._id.toString());
+
+    //Save friend list
+    try {
+      await existingFriendListFriend.save();
+    }
+    catch (e) {
+      throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
+    }
+
+    return 'Friendship between ' + friendUser.pseudo + ' and ' + ownerUser.pseudo + ' is over'
+  }
+
+  //Create friend list for user
+  async createFriendList(owner : string ): Promise<String> {
     const user : IUser = await this.userModel.findOne({pseudo: owner});
     if(!user) {
       throw new BadRequestException('Owner does not exist');
@@ -106,11 +232,16 @@ export class FriendListService {
       throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
     }
 
-    return newFriendList;
+    return 'Friend list for user ' + owner + ' created successfully';
 
   }
 
-  async addFriendToList(owner: string, friend: string): Promise<IFriendList> {
+
+
+
+
+  //CAN BE USEFUL SEPARATELY//
+  async addFriendToList(owner: string, friend: string): Promise<String> {
 
     //Check if owner exists
     const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
@@ -146,48 +277,46 @@ export class FriendListService {
       throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
     }
 
-    return existingFriendList;
+    return 'Friend ' + friendUser.pseudo + ' added to friend list of ' + ownerUser.pseudo;
   }
 
-  async removeFriendFromList(owner: string, friend: string): Promise<IFriendList> {
+  async removeFriendFromList(owner: string, friend: string): Promise<String> {
 
-      //Check if owner exists
-      const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
-      if(!ownerUser) {
-        throw new BadRequestException('Owner does not exist');
-      }
+    //Check if owner exists
+    const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
+    if(!ownerUser) {
+      throw new BadRequestException('Owner does not exist');
+    }
 
-      //Check if friend exists
-      const friendUser : IUser = await this.userModel.findOne({pseudo: friend});
-      if(!friendUser) {
-        throw new BadRequestException('Friend does not exist');
-      }
+    //Check if friend exists
+    const friendUser : IUser = await this.userModel.findOne({pseudo: friend});
+    if(!friendUser) {
+      throw new BadRequestException('Friend does not exist');
+    }
 
-      //Check if friend list exists for this user
-      const existingFriendList = await this.friendListModel.findOne({ owner: ownerUser._id });
-      if (!existingFriendList) {
-        throw new BadRequestException('Friend list does not exist');
-      }
+    //Check if friend list exists for this user
+    const existingFriendList = await this.friendListModel.findOne({ owner: ownerUser._id });
+    if (!existingFriendList) {
+      throw new BadRequestException('Friend list does not exist');
+    }
 
-      //Check if friend is already in friend list
-      if(!existingFriendList.friends.includes(friendUser._id)) {
-        throw new BadRequestException('Friend is not in friend list');
-      }
+    //Check if friend is already in friend list
+    if(!existingFriendList.friends.includes(friendUser._id)) {
+      throw new BadRequestException('Friend is not in friend list');
+    }
 
-      //Remove friend from friend list
-      existingFriendList.friends = existingFriendList.friends.filter(friend => friend.toString() !== friendUser._id.toString());
-
+    //Remove friend from friend list
+    existingFriendList.friends = existingFriendList.friends.filter(friend => friend.toString() !== friendUser._id.toString());
 
     //Save friend list
-      try {
-        await existingFriendList.save();
-      }
-      catch (e) {
-        throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
-      }
+    try {
+      await existingFriendList.save();
+    }
+    catch (e) {
+      throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
+    }
 
-      return existingFriendList;
+    return 'Friend ' + friendUser.pseudo + ' removed from friend list of ' + ownerUser.pseudo;
   }
-
 
 }

@@ -44,6 +44,48 @@ export class FriendListController {
     }
   }
 
+  @Patch('/add-friendship/:friend1/:friend2')
+  @ApiOperation({ summary: 'Add a friendship between two users by adding both in their friendLists' })
+  @ApiParam({
+    name: 'friend1',
+    description: 'The pseudo of the first friend',
+    type: String
+  })
+  @ApiParam({
+    name: 'friend2',
+    description: 'The pseudo of the second friend',
+    type: String
+  })
+  async addFriendship(@Param('friend1') friend1: string, @Param('friend2') friend2: string)  : Promise<String> {
+    try {
+      return await this.friendListService.acceptFriendshipOfUsers(friend1, friend2);
+    }
+    catch (error) {
+      throw new ConflictException('Cannot add friendship. Details => ' + error.message)
+    }
+  }
+
+  @Patch('suppress-friendship/:friend1/:friend2')
+  @ApiOperation({ summary: 'Remove a friendship between two users by removing both in their friendLists' })
+  @ApiParam({
+    name: 'friend1',
+    description: 'The pseudo of the first friend',
+    type: String
+  })
+  @ApiParam({
+    name: 'friend2',
+    description: 'The pseudo of the second friend',
+    type: String
+  })
+  async suppressFriendship(@Param('friend1') friend1: string, @Param('friend2') friend2: string)  : Promise<String> {
+    try {
+      return await this.friendListService.suppressFriendshipOfUsers(friend1, friend2);
+    }
+    catch (error) {
+      throw new ConflictException('Cannot suppress friendship. Details => ' + error.message)
+    }
+  }
+
   @Post('/create/:owner')
   @ApiOperation({ summary: 'Create a new friend list' })
   @ApiParam({
@@ -51,7 +93,7 @@ export class FriendListController {
     description: 'The pseudo of the owner of the friend list',
     type: String
   })
-  async createFriendList(@Param('owner') owner: string)  : Promise<IFriendList> {
+  async createFriendList(@Param('owner') owner: string)  : Promise<String> {
     try {
       return await this.friendListService.createFriendList(owner);
     }
@@ -61,7 +103,8 @@ export class FriendListController {
 
   }
 
-  @Patch('/add-friend/:owner/:friend')
+  // IF NEEDED , UNCOMMENT THIS CODE
+  /*@Patch('/add-friend/:owner/:friend')
   @ApiOperation({ summary: 'Add a friend to a friend list' })
   @ApiParam({
     name: 'owner',
@@ -73,7 +116,7 @@ export class FriendListController {
     description: 'The pseudo of the friend to add',
     type: String
   })
-  async addFriend(@Param('owner') owner: string, @Param('friend') friend: string)  : Promise<IFriendList> {
+  async addFriend(@Param('owner') owner: string, @Param('friend') friend: string)  : Promise<String> {
     try {
       return await this.friendListService.addFriendToList(owner, friend);
     }
@@ -94,15 +137,14 @@ export class FriendListController {
     description: 'The pseudo of the friend to remove',
     type: String
   })
-  async removeFriend(@Param('owner') owner: string, @Param('friend') friend: string)  : Promise<IFriendList> {
+  async removeFriend(@Param('owner') owner: string, @Param('friend') friend: string)  : Promise<String> {
     try {
       return await this.friendListService.removeFriendFromList(owner, friend);
     }
     catch (error) {
       throw new ConflictException('Cannot remove friend. Details => ' + error.message)
     }
-  }
-
+  }*/
 
 
 
