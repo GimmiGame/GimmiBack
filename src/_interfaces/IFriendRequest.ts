@@ -2,8 +2,8 @@ import { IUser } from "./IUser";
 
 export interface IFriendRequest {
   _id: string,
-  from: IUser
-  to: IUser
+  from: string
+  to: string
   sendingDate: string,
   status: string
 }

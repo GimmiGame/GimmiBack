@@ -11,7 +11,7 @@ import { IGameRoom } from 'src/_interfaces/IGameRoom';
 export class GameRoomController {
     constructor(private readonly gameRoomService: GameRoomService) {}
 
-    @Get('findAll')
+    @Get('all')
     @ApiOperation({
         description: 'Find all game rooms.',
     })

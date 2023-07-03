@@ -17,7 +17,7 @@ import { IFriendList } from "../_interfaces/IFriendList";
 export class FriendListController {
   constructor (private readonly friendListService: FriendListService){}
 
-  @Get()
+  @Get('all')
   @ApiOperation({ summary: 'Get all friend lists' })
   async getAllFriendLists() {
     try {

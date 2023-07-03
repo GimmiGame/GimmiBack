@@ -8,14 +8,15 @@ export class CreateFriendRequestDTO {
 
   @ApiProperty({
     description: 'The pseudo of the user who sent the friend request',
-    default: 'dsbdfbshb_USERID_TEST_gfopxopmc'
+    default: 'Mouss'
   })
   @IsNotEmpty()
   @IsString()
   from: string;
 
   @ApiProperty({
-    default: 'test'
+    description: 'The pseudo of the user who received the friend request',
+    default: 'toto'
   })
   @IsNotEmpty()
   @IsString()

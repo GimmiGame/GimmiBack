@@ -20,8 +20,14 @@ export class FriendListService {
     let friendLists: IFriendList[] = [];
     try {
       friendLists = await this.friendListModel.find()
-        .populate('owner')
-        .populate('friends')
+        .populate({
+          path: 'owner',
+          select: 'pseudo'
+        })
+        .populate({
+          path: 'friends',
+          select: 'pseudo'
+        });
     }
     catch (error) {
       Logger.log("No friend list found.\n Details => " + error);
@@ -50,8 +56,14 @@ export class FriendListService {
     //Check if friend list exists for this user
     try {
       friendList = await this.friendListModel.findOne({ owner: ownerUser._id })
-        .populate('owner')
-        .populate('friends')
+        .populate({
+          path: 'owner',
+          select: 'pseudo'
+        })
+        .populate({
+          path: 'friends',
+          select: 'pseudo'
+        });
     }
     catch (error) {
       throw new InternalServerErrorException('Could not find friend list. Details => ' + error);

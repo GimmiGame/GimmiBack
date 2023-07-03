@@ -53,7 +53,7 @@ export class GameInvitationController {
         }
     }
 
-    @Get('findAll')
+    @Get('all')
     @ApiOperation({
         description: 'Find all game invitations.',
     })
