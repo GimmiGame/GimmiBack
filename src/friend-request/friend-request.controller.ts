@@ -6,16 +6,15 @@ import {
   Param,
   Patch,
   Delete,
-  ValidationPipe,
   BadRequestException,
-  UsePipes, NotFoundException, Query, UseGuards
+  NotFoundException
 } from "@nestjs/common";
 import { FriendRequestService } from "./friend-request.service";
 import { CreateFriendRequestDTO } from "./dto/request/CreateFriendRequestDTO";
-import { ApiBody, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { IFriendRequest } from "../_interfaces/IFriendRequest";
 import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";
-import { AuthGuard } from "@nestjs/passport";
+
 
 @Controller('friend-requests') //This is the path that will be used to access the controller
 @ApiTags('Friend Request') //SWAGGER : This is the name of the tag (onglet) that will be shown on swagger for this controller
@@ -96,53 +95,53 @@ export class FriendRequestController {
     }
   }
 
-  // @Patch('accept/:_id')
-  // @ApiOperation({
-  //   description: 'Accept a friend request',
-  // })
-  // @ApiParam({
-  //   name: '_id',
-  //   schema: {
-  //     default: '64616c31fc1e0bf18ae3c6dc',
-  //   }
-  // })
-  // async acceptRequest(@Param('_id') _id: string) : Promise<string>{
-  //   try {
-  //     return await this.friendRequestService.acceptRequest(_id);
-  //   } catch (err) {
-  //       throw new NotFoundException('Could not accept friend request. Error: ' + err.message);
-  //   }
-  // }
+  @Patch('accept/:_id')
+  @ApiOperation({
+    description: 'Accept a friend request',
+  })
+  @ApiParam({
+    name: '_id',
+    schema: {
+      default: '64616c31fc1e0bf18ae3c6dc',
+    }
+  })
+  async acceptRequest(@Param('_id') _id: string) : Promise<string>{
+    try {
+      return await this.friendRequestService.acceptRequest(_id);
+    } catch (err) {
+        throw new NotFoundException('Could not accept friend request. Error: ' + err.message);
+    }
+  }
 
-  // @Patch('refuse/:_id')
-  // @ApiOperation({
-  //   description: 'Refuse a friend request by giving the its _id',
-  // })
-  // @ApiParam({
-  //   name: '_id',
-  //   schema: {
-  //     default: '64616c31fc1e0bf18ae3c6dc',
-  //   }
-  // })
-  // async refuseRequest(@Param('_id') _id: string) : Promise<string>{
-  //   try {
-  //     return await this.friendRequestService.refuseRequest(_id);
-  //   } catch (err) {
-  //       throw new NotFoundException('Could not reject friend request. Error: ' + err.message);
-  //   }
-  // }
+  @Patch('refuse/:_id')
+  @ApiOperation({
+    description: 'Refuse a friend request by giving the its _id',
+  })
+  @ApiParam({
+    name: '_id',
+    schema: {
+      default: '64616c31fc1e0bf18ae3c6dc',
+    }
+  })
+  async refuseRequest(@Param('_id') _id: string) : Promise<string>{
+    try {
+      return await this.friendRequestService.refuseRequest(_id);
+    } catch (err) {
+        throw new NotFoundException('Could not reject friend request. Error: ' + err.message);
+    }
+  }
 
-  // @Delete('delete/:_id')
-  // @ApiOperation({
-  //   description: 'Delete a friend request by its _id',
-  // })
-  // async deleteRequest(@Param('_id') _id: string) : Promise<string>{
-  //   try {
-  //     return await this.friendRequestService.deleteOneById(_id);
-  //   } catch (err) {
-  //       throw new NotFoundException('Could not delete friend request. Error: ' + err.message);
-  //   }
-  // }
+  @Delete('delete/:_id')
+  @ApiOperation({
+    description: 'Delete a friend request by its _id',
+  })
+  async deleteRequest(@Param('_id') _id: string) : Promise<string>{
+    try {
+      return await this.friendRequestService.deleteOne(_id);
+    } catch (err) {
+        throw new NotFoundException('Could not delete friend request. Error: ' + err.message);
+    }
+  }
 
   // @Delete('delete/allFrom/:from')
   // @ApiOperation({

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
 import {format} from 'date-fns';
 import { Model } from "mongoose";
@@ -8,13 +8,16 @@ import RequestStatusEnum from "../enums/request-status-enum";
 import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";
 import { IFriendList } from "../_interfaces/IFriendList";
 import { IUser } from "../_interfaces/IUser";
+import { FriendListService } from "../friend-list/friend-list.service";
 
 @Injectable()
 export class FriendRequestService {
 
     constructor(@InjectModel('FriendRequest') private readonly friendRequestModel: Model<IFriendRequest>,
                 @InjectModel('FriendList') private readonly friendListModel: Model<IFriendList>,
-                @InjectModel('User') private readonly userModel: Model<IUser>) {}
+                @InjectModel('User') private readonly userModel: Model<IUser>,
+
+                private readonly friendListService : FriendListService) {}
 
     //INFOS
     //friendRequestConstructor is a mongoose model that we can use to create new documents in the database
@@ -147,10 +150,115 @@ export class FriendRequestService {
         };
     }
 
-    //async acceptRequest(_id: string): Promise<string> {}
+    async acceptRequest(_id: string): Promise<string> {
+        //Check if the friend request already exists
+        let friendRequestFound ;
+        try {
+            friendRequestFound = await this.friendRequestModel.findOne({_id: _id});
+        }catch(err) {
+            throw new BadRequestException('Could not get friend request. Details => ' + err);
+        }
 
-    //async refuseRequest(_id: string): Promise<string> {}
+        if (!friendRequestFound) {
+            throw new BadRequestException('Friend request does not exist');
+        }
 
+        //get users objects
+        let sender ;
+        let receiver ;
+        try {
+            sender = await this.userModel.findById(friendRequestFound.from);
+            receiver = await this.userModel.findById(friendRequestFound.to);
+        }catch (err) {
+            throw new BadRequestException('Could not get users. Details => ' + err);
+        }
+
+        //Add to friend lists of users
+        try {
+            await this.friendListService.acceptFriendshipOfUsers(sender.pseudo, receiver.pseudo);
+        }catch (err) {
+            throw new BadRequestException('Could not accept friend request. Details => ' + err);
+        }
+
+        //Update friend request status
+        try{
+            switch(friendRequestFound.status) {
+                case RequestStatusEnum.PENDING:
+                    await this.friendRequestModel.updateOne({_id: _id}, {
+                        status: RequestStatusEnum.ACCEPTED,
+                    }
+                    );
+                    break;
+                    default:
+                        throw new BadRequestException('Friend request status is refused or already accepted.');
+            }
+        }catch(err) {
+            throw new BadRequestException('Could not update friend request. Details => ' + err);
+        }
+
+
+
+        return 'Friend request with id : ' + friendRequestFound._id + ' accepted. User ' + sender.pseudo + ' and user ' + receiver.pseudo + ' are now friends.';
+    }
+
+    async refuseRequest(_id: string): Promise<string> {
+        //Check if the friend request already exists
+        let friendRequestFound ;
+        try {
+            friendRequestFound = await this.friendRequestModel.findOne({_id: _id});
+        }catch(err) {
+            throw new BadRequestException('Could not get friend request. Details => ' + err);
+        }
+
+        if (!friendRequestFound) {
+            throw new BadRequestException('Friend request does not exist');
+        }
+
+        //Update friend request status only if it's pending
+        try{
+            switch(friendRequestFound.status) {
+                case RequestStatusEnum.PENDING:
+                    await this.friendRequestModel.updateOne(
+                        {_id: friendRequestFound._id},
+                        {
+                            status: RequestStatusEnum.REFUSED,
+                        }
+                    );
+                    break;
+
+                default:
+                    throw new BadRequestException('Friend request already refused or accepted');
+            }
+        }catch(err) {
+            throw new BadRequestException('Could not update friend request. Details => ' + err);
+        }
+
+        return 'Friend request with id : ' + friendRequestFound._id + ' refused.';
+    }
+
+
+    async deleteOne(_id: string): Promise<string> {
+        //Check if the friend request exists
+        let friendRequestFound ;
+        try {
+            friendRequestFound = await this.friendRequestModel.findOne({_id: _id});
+        }catch(err) {
+            throw new BadRequestException('Could not get friend request. Details => ' + err);
+        }
+
+        if (!friendRequestFound) {
+            throw new BadRequestException('Friend request does not exist');
+        }
+
+        //Delete friend request
+        try {
+            await this.friendRequestModel.deleteOne({_id: _id});
+        }catch(err) {
+            throw new BadRequestException('Could not delete friend request. Details => ' + err);
+        }
+
+        return 'Friend request with id : ' + friendRequestFound._id + ' deleted.';
+    }
     //async deleteAllFrom(from: string): Promise<string> {}
 
     //async deleteAllSentTo(to: string): Promise<string> {}
@@ -191,8 +299,6 @@ export class FriendRequestService {
         switch(createdFriendRequest.status) {
             case RequestStatusEnum.PENDING:
                 throw new BadRequestException('Friend request already exists and is PENDING');
-                break;
-
             default:
                 try {
                     await this.friendRequestModel.updateOne(
