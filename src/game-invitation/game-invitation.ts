@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import RequestStatusEnum from "src/enums/request-status-enum";
+import RequestStatusEnum from "src/_enums/request-status-enum";
 
 export const GameInvitationSchema = new mongoose.Schema({
     gameRoomID: {

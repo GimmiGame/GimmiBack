@@ -82,7 +82,7 @@ export class FriendListService {
   }
 
   //Add friend to friend list of owner and add owner to friend list of friend
-  async acceptFriendshipOfUsers(owner: string, friend: string): Promise<String> {
+  async acceptFriendshipOfUsers(owner: string, friend: string): Promise<void> {
 
       //Check if owner exists
       const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
@@ -142,10 +142,10 @@ export class FriendListService {
         throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
       }
 
-      return 'Frienship started between ' + owner + ' and ' + friend;
+     // return 'Frienship started between ' + owner + ' and ' + friend;
   }
 
-  async suppressFriendshipOfUsers(owner: string, friend: string): Promise<String> {
+  async suppressFriendshipOfUsers(owner: string, friend: string): Promise<void> {
 
     //Check if owner exists
     const ownerUser : IUser = await this.userModel.findOne({pseudo: owner});
@@ -203,11 +203,11 @@ export class FriendListService {
       throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
     }
 
-    return 'Friendship between ' + friendUser.pseudo + ' and ' + ownerUser.pseudo + ' is over'
+    //return 'Friendship between ' + friendUser.pseudo + ' and ' + ownerUser.pseudo + ' is over'
   }
 
   //Create friend list for user
-  async createFriendList(owner : string ): Promise<String> {
+  async createFriendList(owner : string ): Promise<void> {
     const user : IUser = await this.userModel.findOne({pseudo: owner});
     if(!user) {
       throw new BadRequestException('Owner does not exist');
@@ -244,7 +244,7 @@ export class FriendListService {
       throw new InternalServerErrorException('Could not save friend list. Details => ' + e);
     }
 
-    return 'Friend list for user ' + owner + ' created successfully';
+    //return 'Friend list for user ' + owner + ' created successfully';
 
   }
 

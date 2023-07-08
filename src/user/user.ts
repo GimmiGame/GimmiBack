@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { UserStatusEnum } from "../enums/user-status-enum";
+import { UserStatusEnum } from "../_enums/user-status-enum";
 
 export const UserSchema = new mongoose.Schema({
   pseudo: {

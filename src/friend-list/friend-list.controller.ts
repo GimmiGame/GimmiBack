@@ -1,6 +1,6 @@
 import {
   ConflictException,
-  Controller,
+  Controller, Delete,
   Get,
   HttpException,
   NotFoundException,
@@ -9,7 +9,7 @@ import {
   Post
 } from "@nestjs/common";
 import { FriendListService } from "./friend-list.service";
-import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { IFriendList } from "../_interfaces/IFriendList";
 
 @Controller('friend-lists')
@@ -56,7 +56,11 @@ export class FriendListController {
     description: 'The pseudo of the second friend',
     type: String
   })
-  async addFriendship(@Param('friend1') friend1: string, @Param('friend2') friend2: string)  : Promise<String> {
+  @ApiResponse({
+    status: 200,
+    description: 'The friendship has been successfully added',
+  })
+  async addFriendship(@Param('friend1') friend1: string, @Param('friend2') friend2: string)  : Promise<void> {
     try {
       return await this.friendListService.acceptFriendshipOfUsers(friend1, friend2);
     }
@@ -65,7 +69,7 @@ export class FriendListController {
     }
   }
 
-  @Patch('suppress-friendship/:friend1/:friend2')
+  @Delete('suppress-friendship/:friend1/:friend2')
   @ApiOperation({ summary: 'Remove a friendship between two users by removing both in their friendLists' })
   @ApiParam({
     name: 'friend1',
@@ -77,7 +81,11 @@ export class FriendListController {
     description: 'The pseudo of the second friend',
     type: String
   })
-  async suppressFriendship(@Param('friend1') friend1: string, @Param('friend2') friend2: string)  : Promise<String> {
+  @ApiResponse({
+    status: 200,
+    description: 'The friendship has been successfully removed',
+  })
+  async suppressFriendship(@Param('friend1') friend1: string, @Param('friend2') friend2: string)  : Promise<void> {
     try {
       return await this.friendListService.suppressFriendshipOfUsers(friend1, friend2);
     }
@@ -93,7 +101,11 @@ export class FriendListController {
     description: 'The pseudo of the owner of the friend list',
     type: String
   })
-  async createFriendList(@Param('owner') owner: string)  : Promise<String> {
+  @ApiResponse({
+    status: 201,
+    description: 'The friend list has been successfully created',
+  })
+  async createFriendList(@Param('owner') owner: string)  : Promise<void> {
     try {
       return await this.friendListService.createFriendList(owner);
     }

@@ -105,7 +105,7 @@ export class FriendRequestController {
       default: '64616c31fc1e0bf18ae3c6dc',
     }
   })
-  async acceptRequest(@Param('_id') _id: string) : Promise<string>{
+  async acceptRequest(@Param('_id') _id: string) : Promise<void>{
     try {
       return await this.friendRequestService.acceptRequest(_id);
     } catch (err) {
@@ -123,7 +123,7 @@ export class FriendRequestController {
       default: '64616c31fc1e0bf18ae3c6dc',
     }
   })
-  async refuseRequest(@Param('_id') _id: string) : Promise<string>{
+  async refuseRequest(@Param('_id') _id: string) : Promise<void>{
     try {
       return await this.friendRequestService.refuseRequest(_id);
     } catch (err) {
@@ -135,7 +135,7 @@ export class FriendRequestController {
   @ApiOperation({
     description: 'Delete a friend request by its _id',
   })
-  async deleteRequest(@Param('_id') _id: string) : Promise<string>{
+  async deleteRequest(@Param('_id') _id: string) : Promise<void>{
     try {
       return await this.friendRequestService.deleteOne(_id);
     } catch (err) {

@@ -4,7 +4,7 @@ import {format} from 'date-fns';
 import { Model } from "mongoose";
 import { IFriendRequest } from "../_interfaces/IFriendRequest";
 import { CreateFriendRequestDTO } from "./dto/request/CreateFriendRequestDTO";
-import RequestStatusEnum from "../enums/request-status-enum";
+import RequestStatusEnum from "../_enums/request-status-enum";
 import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";
 import { IFriendList } from "../_interfaces/IFriendList";
 import { IUser } from "../_interfaces/IUser";
@@ -150,8 +150,8 @@ export class FriendRequestService {
         };
     }
 
-    async acceptRequest(_id: string): Promise<string> {
-        //Check if the friend request already exists
+    async acceptRequest(_id: string): Promise<void> {
+        //Check if the friend request exists
         let friendRequestFound ;
         try {
             friendRequestFound = await this.friendRequestModel.findOne({_id: _id});
@@ -198,10 +198,10 @@ export class FriendRequestService {
 
 
 
-        return 'Friend request with id : ' + friendRequestFound._id + ' accepted. User ' + sender.pseudo + ' and user ' + receiver.pseudo + ' are now friends.';
+        //return "Friend request with id : "+ friendRequestFound._id + " accepted. User " + sender.pseudo + " and user " + receiver.pseudo + " are now friends.";
     }
 
-    async refuseRequest(_id: string): Promise<string> {
+    async refuseRequest(_id: string): Promise<void> {
         //Check if the friend request already exists
         let friendRequestFound ;
         try {
@@ -233,11 +233,11 @@ export class FriendRequestService {
             throw new BadRequestException('Could not update friend request. Details => ' + err);
         }
 
-        return 'Friend request with id : ' + friendRequestFound._id + ' refused.';
+        //return 'Friend request with id : ' + friendRequestFound._id + ' refused.';
     }
 
 
-    async deleteOne(_id: string): Promise<string> {
+    async deleteOne(_id: string): Promise<void> {
         //Check if the friend request exists
         let friendRequestFound ;
         try {
@@ -257,42 +257,11 @@ export class FriendRequestService {
             throw new BadRequestException('Could not delete friend request. Details => ' + err);
         }
 
-        return 'Friend request with id : ' + friendRequestFound._id + ' deleted.';
+        //return 'Friend request with id : ' + friendRequestFound._id + ' deleted.';
     }
     //async deleteAllFrom(from: string): Promise<string> {}
 
     //async deleteAllSentTo(to: string): Promise<string> {}
-
-
-    //MAYBE USELESS
-    /*async updateRequest(createFriendRequestDTO: CreateFriendRequestDTO, status: RequestStatusEnum) {
-        //Check if the friend request already exists
-        let friendRequestToUpdate ;
-        try {
-            friendRequestToUpdate = await this.friendRequestModel.findOne({
-                from: createFriendRequestDTO.from,
-                to: createFriendRequestDTO.to,
-            });
-        }catch(err) {
-            Logger.log('No friend request to update found : '+ err)
-        }
-
-        if (!friendRequestToUpdate) {
-            throw new BadRequestException('Friend request does not exist');
-        }
-
-        //Update friend request
-        let updatedRequest ;
-        try{
-            updatedRequest = await this.friendRequestModel.updateOne(
-                {_id: friendRequestToUpdate._id},
-                {status: status}
-            );
-        }catch(err) {
-            throw new BadRequestException('Could not update friend request. Details => ' + err);
-        }
-        return 'FriendRequest with id : ' + friendRequestToUpdate._id + ' updated to status : ' + status;
-    }*/
 
 
     private async updateExistingRequest(createdFriendRequest : IFriendRequest) : Promise<void> {

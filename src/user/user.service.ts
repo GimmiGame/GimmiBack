@@ -15,7 +15,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
 import { IToken } from "../_interfaces/IToken";
 import { IPayload } from "../_interfaces/IPayload";
-import { UserStatusEnum } from "../enums/user-status-enum";
+import { UserStatusEnum } from "../_enums/user-status-enum";
 import { UserRequestResponseDTO } from "./dto/response/UserRequestResponseDTO";
 
 @Injectable()
@@ -174,5 +174,8 @@ export class UserService {
     await user.save();
   }
 
+  private initUserattributes() : void {
+    //TODO
+  }
 
 }
