@@ -331,4 +331,38 @@ export class FriendListService {
     return 'Friend ' + friendUser.pseudo + ' removed from friend list of ' + ownerUser.pseudo;
   }
 
+  //Be careful we only check if friend is in one list and return . Not in both
+  async areFriends(pseudo1: string, pseudo2: string): Promise<boolean> {
+    let user1;
+    let user2;
+    try {
+      user1 = await this.userModel.findOne({pseudo: pseudo1});
+      user2 = await this.userModel.findOne({pseudo: pseudo2});
+    }catch(err) {
+      throw new BadRequestException('Could not get users. Details => ' + err);
+    }
+
+    let friendList1;
+    let friendList2;
+    try {
+      friendList1 = await this.getOneFriendList(user1.pseudo);
+      friendList2 = await this.getOneFriendList(user2.pseudo);
+    }catch(err) {
+      throw new BadRequestException('Could not get friend lists. Details => ' + err);
+    }
+
+    friendList1.friends.forEach(friend => {
+      if (friend.pseudo === user2.pseudo) {
+        return true;
+      }
+    });
+    friendList2.friends.forEach(friend => {
+      if (friend.pseudo === user1.pseudo) {
+        return true;
+      }
+    });
+
+    return false;
+  }
+
 }

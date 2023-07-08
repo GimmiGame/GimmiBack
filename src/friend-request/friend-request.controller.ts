@@ -13,7 +13,6 @@ import { FriendRequestService } from "./friend-request.service";
 import { CreateFriendRequestDTO } from "./dto/request/CreateFriendRequestDTO";
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { IFriendRequest } from "../_interfaces/IFriendRequest";
-import { CreateFriendRequestResponseDTO } from "./dto/response/CreateFriendRequestResponseDTO";
 
 
 @Controller('friend-requests') //This is the path that will be used to access the controller
@@ -85,9 +84,8 @@ export class FriendRequestController {
   @ApiResponse({
     status: 201,
     description: 'The friend request has been successfully created.',
-    type: CreateFriendRequestResponseDTO
   })
-  async createRequest(@Body() createFriendRequestDTO: CreateFriendRequestDTO) :  Promise<CreateFriendRequestResponseDTO>{
+  async createRequest(@Body() createFriendRequestDTO: CreateFriendRequestDTO) :  Promise<void>{
     try {
       return await this.friendRequestService.createRequest(createFriendRequestDTO);
     } catch (err) {
