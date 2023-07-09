@@ -3,16 +3,15 @@ import {
   ConflictException,
   Controller, Get, HttpException,
   InternalServerErrorException, NotFoundException, Param, Patch,
-  Post, Query,
+  Post,
   UnauthorizedException
 } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { CreateUserDTO } from "./dto/request/CreateUserDTO";
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { AuthCredentialsDTO } from "./dto/request/AuthCredentialsDTO";
 import { IToken } from "../_interfaces/IToken";
 import { SignUpDTO } from "./dto/request/SignUpDTO";
-import { IUser } from "../_interfaces/IUser";
+
 import { UserRequestResponseDTO } from "./dto/response/UserRequestResponseDTO";
 
 @Controller('users')
@@ -26,7 +25,7 @@ export class UserController {
   @ApiBody({
     type: SignUpDTO
   })
-  //TODO: add response token
+
   async signUp(@Body() signUpDTO: SignUpDTO) : Promise<IToken>{
     try {
       return await this.userService.create(signUpDTO);

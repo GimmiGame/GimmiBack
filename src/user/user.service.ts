@@ -54,7 +54,6 @@ export class UserService {
       token: this.jwtService.sign(payload)
     }
 
-    //TODO: Put the user status ONLINE
     await this.updateUserStatus(createdUser.pseudo, UserStatusEnum.ONLINE);
 
     return generatedToken;
