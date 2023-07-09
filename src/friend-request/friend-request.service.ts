@@ -42,10 +42,6 @@ export class FriendRequestService {
 
     }
 
-    ////async getOneById(_id: string): Promise<IFriendRequest> {}
-
-    //async getRequestsByFromTo(from: string, to: string): Promise<IFriendRequest[]> {}
-
     async getFriendRequestsFrom(sender: string): Promise<IFriendRequest[]> {
         let user ;
         try {
@@ -144,9 +140,6 @@ export class FriendRequestService {
                 throw new BadRequestException('Could not create friend request. Details => ' + err);
             }
         }
-
-
-
     }
 
     async acceptRequest(_id: string): Promise<void> {
@@ -194,10 +187,6 @@ export class FriendRequestService {
         }catch(err) {
             throw new BadRequestException('Could not update friend request. Details => ' + err);
         }
-
-
-
-        //return "Friend request with id : "+ friendRequestFound._id + " accepted. User " + sender.pseudo + " and user " + receiver.pseudo + " are now friends.";
     }
 
     async refuseRequest(_id: string): Promise<void> {
@@ -207,24 +196,18 @@ export class FriendRequestService {
         }catch(err) {
             throw new BadRequestException('Could not refuse friend request. Details => ' + err);
         }
-
     }
 
 
     async deleteOne(_id: string): Promise<void> {
-
         //Delete friend request
         try {
             await this.friendRequestModel.deleteOne({_id: _id});
         }catch(err) {
             throw new BadRequestException('Could not delete friend request. Details => ' + err);
         }
-
-        //return 'Friend request with id : ' + friendRequestFound._id + ' deleted.';
     }
-    //async deleteAllFrom(from: string): Promise<string> {}
 
-    //async deleteAllSentTo(to: string): Promise<string> {}
 
 
     private async updateExistingRequest(createdFriendRequest : IFriendRequest) : Promise<void> {
@@ -246,7 +229,5 @@ export class FriendRequestService {
                 break;
         }
     }
-
-
 
 }
