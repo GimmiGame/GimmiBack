@@ -132,18 +132,20 @@ export class FriendRequestService {
                 throw new BadRequestException('Could not update friend request. Details => ' + err);
             }
 
+        }else{
+            //If the friend request does not exist, we create it
+            try {
+                await this.friendRequestModel.create({
+                    from: sender._id,
+                    to: receiver._id,
+                    sendingDate: format(new Date(), 'dd/MM/yyyy').toString(),
+                });
+            }catch(err) {
+                throw new BadRequestException('Could not create friend request. Details => ' + err);
+            }
         }
 
-        //Create friend request
-        try {
-            await this.friendRequestModel.create({
-                from: sender._id,
-                to: receiver._id,
-                sendingDate: format(new Date(), 'dd/MM/yyyy').toString(),
-            });
-        }catch(err) {
-            throw new BadRequestException('Could not create friend request. Details => ' + err);
-        }
+
 
     }
 

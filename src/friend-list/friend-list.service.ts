@@ -26,7 +26,7 @@ export class FriendListService {
         })
         .populate({
           path: 'friends',
-          select: 'pseudo'
+          select: 'pseudo status'
         });
     }
     catch (error) {
@@ -62,7 +62,7 @@ export class FriendListService {
         })
         .populate({
           path: 'friends',
-          select: 'pseudo'
+          select: 'pseudo status'
         });
     }
     catch (error) {
@@ -351,16 +351,16 @@ export class FriendListService {
       throw new BadRequestException('Could not get friend lists. Details => ' + err);
     }
 
-    friendList1.friends.forEach(friend => {
+    for (const friend of friendList1.friends) {
       if (friend.pseudo === user2.pseudo) {
         return true;
       }
-    });
-    friendList2.friends.forEach(friend => {
+    }
+    for (const friend of friendList2.friends) {
       if (friend.pseudo === user1.pseudo) {
         return true;
       }
-    });
+    }
 
     return false;
   }
