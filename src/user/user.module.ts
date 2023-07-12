@@ -7,6 +7,8 @@ import { JwtModule, JwtService } from "@nestjs/jwt";
 import { ConfigService,ConfigModule } from "@nestjs/config";
 import { JwtStrategy } from "./jwt.strategy";
 import  { UserSchema } from "./user";
+import { FriendListService } from "../friend-list/friend-list.service";
+import { FriendListSchema } from "../friend-list/friend-list";
 
 @Module({
   imports: [
@@ -26,10 +28,14 @@ import  { UserSchema } from "./user";
         name: 'User',
         schema: UserSchema,
       },
+      {
+        name: 'FriendList',
+        schema: FriendListSchema
+      }
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService,JwtStrategy],
+  providers: [UserService,JwtStrategy,FriendListService],
   exports: [JwtStrategy,PassportModule,UserService]
 })
 export class UserModule {}

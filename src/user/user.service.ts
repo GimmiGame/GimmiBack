@@ -17,10 +17,11 @@ import { IToken } from "../_interfaces/IToken";
 import { IPayload } from "../_interfaces/IPayload";
 import { UserStatusEnum } from "../_enums/user-status-enum";
 import { UserRequestResponseDTO } from "./dto/response/UserRequestResponseDTO";
+import { FriendListService } from "../friend-list/friend-list.service";
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private readonly userModel: Model<IUser>, private jwtService : JwtService) { }
+  constructor(@InjectModel('User') private readonly userModel: Model<IUser>, private jwtService : JwtService, private friendListService : FriendListService) { }
 
   async create(signUpDTO : SignUpDTO) : Promise<IToken> {
 
@@ -54,6 +55,10 @@ export class UserService {
       token: this.jwtService.sign(payload)
     }
 
+    //Init user table linked attributes (important)
+    this.initUserattributes(createdUser.pseudo);
+
+    //Update the user status
     await this.updateUserStatus(createdUser.pseudo, UserStatusEnum.ONLINE);
 
     return generatedToken;
@@ -173,8 +178,8 @@ export class UserService {
     await user.save();
   }
 
-  private initUserattributes() : void {
-    //TODO
+  private initUserattributes(pseudo : string) : void {
+    this.friendListService.createFriendList(pseudo)
   }
 
 }
