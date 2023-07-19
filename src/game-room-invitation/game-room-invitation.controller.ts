@@ -45,24 +45,6 @@ export class GameRoomInvitationController {
     //     }
     // }
     //
-    // @Get('id/:_id')
-    // @ApiOperation({
-    //     description: 'Get the game invitation by its id. Return 404 if no game invitation is found.',
-    // })
-    // @ApiParam({
-    //     name: '_id',
-    //     schema: {
-    //     default: '64725edd894e72824610e304',
-    //     }
-    // })
-    // async getGameRoomById(@Param('_id') _id: string ) : Promise<IGameRoomInvitation> {
-    //     try {
-    //         return await this.gameInvitationService.getOneById(_id);
-    //     } catch(err) {
-    //         throw new NotFoundException('Could not get invitation request. Error: ' + err.message);
-    //     }
-    // }
-    //
     @Get('all')
     @ApiOperation({
         description: 'Find all game invitations.',
@@ -74,6 +56,24 @@ export class GameRoomInvitationController {
             throw new NotFoundException('No game invitations found. Error: ' + err.message);
         }
     }
+    @Get('id/:_id')
+    @ApiOperation({
+        description: 'Get the game invitation by its id.',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+            default: '64725edd894e72824610e304',
+        }
+    })
+    async getGameRoomById(@Param('_id') _id: string ) : Promise<IGameRoomInvitation> {
+        try {
+            return await this.gameInvitationService.getOneById(_id);
+        } catch(err) {
+            throw new NotFoundException('Could not get invitation request. Error: ' + err.message);
+        }
+    }
+
 
     @Post('create')
     @ApiOperation({
@@ -94,7 +94,6 @@ export class GameRoomInvitationController {
             throw new BadRequestException('Could not create game invitation request. Error: ' + err.message);
         }
     }
-
 
     @Patch('accept/:_id')
     @ApiOperation({

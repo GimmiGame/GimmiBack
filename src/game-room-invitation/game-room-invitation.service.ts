@@ -17,6 +17,53 @@ export class GameRoomInvitationService {
                 @InjectModel('GameRoom') private readonly gameRoomModel: Model<IGameRoom>,
                 @InjectModel('User') private readonly userModel: Model<IUser>) {}
 
+
+    async findAllGameInvitations(): Promise<IGameRoomInvitation[]> {
+        let gameInvitationsList : IGameRoomInvitation[] = [];
+        try {
+            gameInvitationsList = await this.gameInvitationModel.find()
+              .populate({
+                  path : 'gameRoom',
+                  select : 'roomName _id'
+              })
+              .populate({
+                  path : 'from',
+                  select : 'pseudo'
+              })
+              .populate({
+                  path : 'to',
+                  select : 'pseudo'
+              })
+        } catch(err) {
+            Logger.log('No game invitations found.\n Details => ' + err);
+        }
+
+        return gameInvitationsList;
+    }
+
+    async getOneById(_id: string): Promise<IGameRoomInvitation> {
+        let gameInvitation;
+        try {
+            gameInvitation = await this.gameInvitationModel.findById(_id)
+              .populate({
+                  path : 'gameRoom',
+                  select : 'roomName _id'
+              })
+              .populate({
+                  path : 'from',
+                  select : 'pseudo'
+              })
+              .populate({
+                  path : 'to',
+                  select : 'pseudo'
+              });
+        } catch (err) {
+            throw new BadRequestException('No game invitation found with id : ' + _id);
+        }
+
+        return gameInvitation;
+    }
+
     async createGameRoomInvitationRequest(gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<void> {
         //get the game room
         let gameRoom;
@@ -154,50 +201,6 @@ export class GameRoomInvitationService {
     //     return gameInvitationsResponse;
     // }
     //
-    // async getOneById(_id: string): Promise<IGameRoomInvitation> {
-    //     let gameInvitation;
-    //     try {
-    //         gameInvitation = await this.gameInvitationModel.findById(_id);
-    //     } catch (err) {
-    //         throw new NotFoundException('No game invitation found with id : ' + _id + '.\n Details => ' + err);
-    //     }
-    //
-    //     let response: IGameRoomInvitation;
-    //
-    //     if (gameInvitation) {
-    //         response = {
-    //             _id: _id,
-    //             gameRoom: gameInvitation.gameRoom,
-    //             from: gameInvitation.from,
-    //             to: gameInvitation.to,
-    //             status: gameInvitation.status
-    //         };
-    //     }
-    //     return response;
-    // }
-    //
-    async findAllGameInvitations(): Promise<IGameRoomInvitation[]> {
-        let gameInvitationsList : IGameRoomInvitation[] = [];
-        try {
-            gameInvitationsList = await this.gameInvitationModel.find()
-              .populate({
-                  path : 'gameRoom',
-                  select : 'roomName _id'
-              })
-              .populate({
-                  path : 'from',
-                  select : 'pseudo'
-              })
-              .populate({
-                  path : 'to',
-                  select : 'pseudo'
-              })
-        } catch(err) {
-            Logger.log('No game invitations found.\n Details => ' + err);
-        }
-
-        return gameInvitationsList;
-    }
 
 
     //PRIVATE METHODS//
