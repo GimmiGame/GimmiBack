@@ -4,16 +4,16 @@ import { IsNotEmpty, IsString } from "class-validator";
 export class GameRoomInvitationRequestDTO {
 
     @ApiProperty({
-        default: "6471294f74ae51832b3483e5",
-        description: "THe ID of the game room you want to invite"
+        default: "Room1",
+        description: "THe name of the game room to join"
     })
     @IsNotEmpty()
     @IsString()
-    gameRoomID: string;
+    roomName: string;
 
     @ApiProperty({
         description: 'The pseudo of the user who sent the game invitation request',
-        default: 'dsbdfbshb_USERID_TEST_gfopxopmc'
+        default: 'Mouss'
       })
       @IsNotEmpty()
       @IsString()

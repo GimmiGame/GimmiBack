@@ -53,38 +53,38 @@ export class GameRoomInvitationController {
     //     }
     // }
     //
-    // @Get('all')
-    // @ApiOperation({
-    //     description: 'Find all game invitations.',
-    // })
-    // async findAllGameInvitations() : Promise<string[]> {
-    //     try {
-    //         return await this.gameInvitationService.findAllGameInvitations();
-    //     } catch(err) {
-    //         throw new NotFoundException('No game invitations found. Error: ' + err.message);
-    //     }
-    // }
-    //
-    // @Post('create')
-    // @ApiOperation({
-    //     description: 'Create a new game invitation request.',
-    // })
-    // @ApiBody({
-    //     type: GameRoomInvitationRequestDTO
-    // })
-    // @ApiResponse({
-    //     status: 201,
-    //     description: 'The friend request has been successfully created.',
-    //     type: GameRoomInvitationResponseDTO
-    // })
-    // async createRequest(@Body() gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<GameRoomInvitationResponseDTO> {
-    //     try {
-    //         return await this.gameInvitationService.createGameRoomInvitationRequest(gameRoomInvitationRequestDTO);
-    //     }
-    //     catch(err) {
-    //         throw new BadRequestException('Could not create game invitation request. Error: ' + err.message);
-    //     }
-    // }
+    @Get('all')
+    @ApiOperation({
+        description: 'Find all game invitations.',
+    })
+    async findAllGameInvitations() : Promise<IGameRoomInvitation[]> {
+        try {
+            return await this.gameInvitationService.findAllGameInvitations();
+        } catch(err) {
+            throw new NotFoundException('No game invitations found. Error: ' + err.message);
+        }
+    }
+
+    @Post('create')
+    @ApiOperation({
+        description: 'Create a new game invitation request.',
+    })
+    @ApiBody({
+        type: GameRoomInvitationRequestDTO
+    })
+    @ApiResponse({
+        status: 201,
+        description: 'The friend request has been successfully created.',
+    })
+    async createRequest(@Body() gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<void> {
+        try {
+            return await this.gameInvitationService.createGameRoomInvitationRequest(gameRoomInvitationRequestDTO);
+        }
+        catch(err) {
+            throw new BadRequestException('Could not create game invitation request. Error: ' + err.message);
+        }
+    }
+
     //
     // @Patch('accept/:_id')
     // @ApiOperation({

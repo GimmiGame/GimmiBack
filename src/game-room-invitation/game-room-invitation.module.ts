@@ -9,17 +9,22 @@ import { UserSchema } from "../user/user";
 import { JwtModule } from "@nestjs/jwt";
 import { UserService } from "../user/user.service";
 import { GameRoomService } from "../game-room/game-room.service";
+import { GameRoomSchema } from "../game-room/game-room";
 
 @Module({
   imports:[
     UserModule,
     MongooseModule.forFeature([{
-      name: 'GameInvitationRequest',
+      name: 'GameInvitation',
       schema: GameInvitationSchema
     },
     {
       name: 'User',
       schema: UserSchema
+    },
+    {
+      name: 'GameRoom',
+      schema: GameRoomSchema
     }
     ]),
     GameRoomModule,

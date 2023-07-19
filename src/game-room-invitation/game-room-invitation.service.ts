@@ -8,52 +8,68 @@ import { format } from 'date-fns';
 import RequestStatusEnum from 'src/_enums/request-status-enum';
 import { IGameRoom } from 'src/_interfaces/IGameRoom';
 import { GameRoomService } from 'src/game-room/game-room.service';
+import { IUser } from "../_interfaces/IUser";
 
 @Injectable()
 export class GameRoomInvitationService {
 
-    constructor(@InjectModel('GameInvitationRequest') private readonly gameInvitationModel: Model<IGameRoomInvitation>, private readonly gameRoomService: GameRoomService) {}
+    constructor(@InjectModel('GameInvitation') private readonly gameInvitationModel: Model<IGameRoomInvitation>, private readonly gameRoomService: GameRoomService,
+                @InjectModel('GameRoom') private readonly gameRoomModel: Model<IGameRoom>,
+                @InjectModel('User') private readonly userModel: Model<IUser>) {}
 
-    // async createGameRoomInvitationRequest(gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<GameRoomInvitationResponseDTO> {
-    //     let existingGameInvitationRequest;
-    //     try {
-    //         existingGameInvitationRequest = await this.gameInvitationModel.findOne({
-    //             from: gameRoomInvitationRequestDTO.from,
-    //             to: gameRoomInvitationRequestDTO.to
-    //         });
-    //     } catch(err) {
-    //         Logger.log('No game invitation found : ' + err + "\nCreating new one ...")
-    //     }
-    //
-    //     if(existingGameInvitationRequest) {
-    //         throw new BadRequestException('Game invitation already sent');
-    //     }
-    //
-    //     let newInvitationRequest;
-    //     let cuurrentDate = new Date();
-    //     let formattedDate = format(cuurrentDate, 'yyyy-MM-dd');
-    //     try {
-    //         newInvitationRequest = new this.gameInvitationModel({
-    //             ...gameRoomInvitationRequestDTO,
-    //
-    //         });
-    //     } catch (err) {
-    //         throw new BadRequestException('Could not send game room invitation request.\n Details => ' + err);
-    //     }
-    //
-    //     let savedRequest;
-    //     try {
-    //         savedRequest = await newInvitationRequest.save()
-    //     } catch(err) {
-    //         throw new BadRequestException('Could not save game room invitation request.\n Details => ' + err);
-    //     }
-    //
-    //     let createdRequest: GameRoomInvitationResponseDTO = {
-    //         roomInvitationID: savedRequest._id,
-    //         message: 'Game invitation send with id : ' + savedRequest._id + ' from ' + newInvitationRequest.from + ' to ' + newInvitationRequest.to + ' for the room with id : ' + newInvitationRequest.gameRoomID,
-    //     }
-    //     return createdRequest;
-    // }
+    async createGameRoomInvitationRequest(gameRoomInvitationRequestDTO: GameRoomInvitationRequestDTO): Promise<void> {
+        //get the game room
+        let gameRoom;
+        try {
+            gameRoom = await this.gameRoomModel.findOne({roomName: gameRoomInvitationRequestDTO.roomName});
+        } catch(err) {
+            throw new BadRequestException('Game room does not exist');
+        }
+
+        //get users
+        let fromUser;
+        let toUser;
+        try {
+            fromUser = await this.userModel.findOne({pseudo: gameRoomInvitationRequestDTO.from});
+            toUser = await this.userModel.findOne({pseudo: gameRoomInvitationRequestDTO.to});
+        } catch(err) {
+            throw new BadRequestException('Users do not exist');
+        }
+
+        //check if the user is already in the game room
+        if(gameRoom.players.includes(toUser._id)) throw new BadRequestException('User is already in the game room');
+
+        //check if the user is already invited
+        let gameRoomInvitation;
+        try {
+            gameRoomInvitation = await this.gameInvitationModel.findOne({from: fromUser._id, to: toUser._id, gameRoom: gameRoom._id});
+        } catch(err) {
+            throw new BadRequestException('Could not check if the user is already invited');
+        }
+
+        if(gameRoomInvitation) throw new BadRequestException('User is already invited');
+
+        //Create the invitation
+        let newGameRoomInvitation;
+        try {
+            newGameRoomInvitation = new this.gameInvitationModel({
+                from: fromUser._id,
+                to: toUser._id,
+                gameRoom: gameRoom._id,
+                status: RequestStatusEnum.PENDING
+            });
+        } catch(err) {
+            throw new BadRequestException('Could not create new game-room invitation.\n Details => ' + err);
+        }
+
+        let savedGameRoomInvitation;
+        try {
+            savedGameRoomInvitation = await newGameRoomInvitation.save();
+        } catch(err) {
+            throw new InternalServerErrorException('Could not save the new game-room invitation.\n Details => ' + err);
+        }
+
+    }
     //
     // async acceptRequest(_id: string): Promise<string> {
     //     let gameRoomInvitationToAccept;
@@ -167,15 +183,28 @@ export class GameRoomInvitationService {
     //     return response;
     // }
     //
-    // async findAllGameInvitations(): Promise<string[]> {
-    //     let gameInvitationsList : string[] = [];
-    //     try {
-    //         gameInvitationsList = await this.gameInvitationModel.find();
-    //     } catch(err) {
-    //         Logger.log('No game invitations found.\n Details => ' + err);
-    //     }
-    //     return gameInvitationsList;
-    // }
+    async findAllGameInvitations(): Promise<IGameRoomInvitation[]> {
+        let gameInvitationsList : IGameRoomInvitation[] = [];
+        try {
+            gameInvitationsList = await this.gameInvitationModel.find()
+              .populate({
+                  path : 'gameRoom',
+                  select : 'roomName _id'
+              })
+              .populate({
+                  path : 'from',
+                  select : 'pseudo'
+              })
+              .populate({
+                  path : 'to',
+                  select : 'pseudo'
+              })
+        } catch(err) {
+            Logger.log('No game invitations found.\n Details => ' + err);
+        }
+
+        return gameInvitationsList;
+    }
 
 
 
