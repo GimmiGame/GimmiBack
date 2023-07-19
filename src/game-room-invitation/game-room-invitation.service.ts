@@ -47,96 +47,89 @@ export class GameRoomInvitationService {
             throw new BadRequestException('Could not check if the user is already invited');
         }
 
-        if(gameRoomInvitation) throw new BadRequestException('User is already invited');
+        if(gameRoomInvitation) {
+            try{
+                await this.updateExistingRequest(gameRoomInvitation);
+            }catch(err) {
+                throw new InternalServerErrorException('Could not update existing request. Details => ' + err);
+            }
+        }else{
+            //Doesn't exist so create the invitation
+            try{
+                await this.gameInvitationModel.create({
+                    from: fromUser._id,
+                    to: toUser._id,
+                    gameRoom: gameRoom._id,
+                })
+            }catch(err) {
+                throw new InternalServerErrorException('Could not create the invitation. Details => ' + err);
+            }
+        }
+    }
 
-        //Create the invitation
-        let newGameRoomInvitation;
+
+    async acceptRequest(_id: string): Promise<void> {
+        //Get the invitation
+        let invitationRequestToAccept;
         try {
-            newGameRoomInvitation = new this.gameInvitationModel({
-                from: fromUser._id,
-                to: toUser._id,
-                gameRoom: gameRoom._id,
-                status: RequestStatusEnum.PENDING
-            });
-        } catch(err) {
-            throw new BadRequestException('Could not create new game-room invitation.\n Details => ' + err);
+            invitationRequestToAccept = await this.gameInvitationModel.findById(_id);
+            if(invitationRequestToAccept.status === 'ACCEPTED') throw new BadRequestException('Invitation was already accepted');
+        } catch (err) {
+            throw new BadRequestException('Invitation does not exist');
         }
 
-        let savedGameRoomInvitation;
+        if(!invitationRequestToAccept) throw new BadRequestException('Invitation does not exist');
+
+        //Get the game room
+        let gameRoom;
         try {
-            savedGameRoomInvitation = await newGameRoomInvitation.save();
+            gameRoom = await this.gameRoomModel.findById(invitationRequestToAccept.gameRoom);
         } catch(err) {
-            throw new InternalServerErrorException('Could not save the new game-room invitation.\n Details => ' + err);
+            throw new BadRequestException('Game room does not exist');
+        }
+
+        //Get the users
+        let fromUser;
+        let toUser;
+        try {
+            fromUser = await this.userModel.findById(invitationRequestToAccept.from);
+            toUser = await this.userModel.findById(invitationRequestToAccept.to);
+        } catch(err) {
+            throw new BadRequestException('Users do not exist');
+        }
+
+        //Check if the user is already in the game room
+        if(gameRoom.players.includes(toUser._id)) throw new BadRequestException('User is already in the game room');
+
+        //Add user to the game room
+        try {
+            await this.gameRoomService.joinGameRoom(gameRoom.roomName, toUser._id);
+        } catch(err) {
+            throw new InternalServerErrorException('Could not add user to the game room. Details => ' + err);
+        }
+
+        //Update the invitation status
+        try {
+            await this.gameInvitationModel.updateOne(
+                { _id: invitationRequestToAccept._id },
+                { status: RequestStatusEnum.ACCEPTED }
+            );
+        } catch (err) {
+            throw new BadRequestException('Could not accept invitation. Details => ' + err);
         }
 
     }
-    //
-    // async acceptRequest(_id: string): Promise<string> {
-    //     let gameRoomInvitationToAccept;
-    //     try {
-    //         gameRoomInvitationToAccept = await this.gameInvitationModel.findById(_id);
-    //         if(gameRoomInvitationToAccept.status === 'REFUSED') throw new BadRequestException('Invitation was already refused');
-    //     } catch(err) {
-    //         throw new BadRequestException('Game room does not exist');
-    //     }
-    //
-    //     let updatedRequest;
-    //     try {
-    //         updatedRequest = await this.gameInvitationModel.updateOne(
-    //           { _id: gameRoomInvitationToAccept._id },
-    //           { status: RequestStatusEnum.ACCEPTED }
-    //         );
-    //     } catch (err) {
-    //         throw new BadRequestException('Could not update friend request. Details => ' + err);
-    //     }
-    //
-    //     let gameRoom;
-    //     try {
-    //         gameRoom = await this.gameRoomService.getOneById(gameRoomInvitationToAccept.gameRoomID);
-    //         gameRoom.players.push(gameRoomInvitationToAccept.to);
-    //     }
-    //     catch(err) {
-    //         throw new BadRequestException('Could not find the game room  to update after the invitation was accepted. Details => ' + err);
-    //     }
-    //
-    //     let gameRoomUpdateRequest;
-    //     try {
-    //         gameRoomUpdateRequest = await this.gameRoomService.updateGameRoom(gameRoom);
-    //     }
-    //     catch(err) {
-    //         throw new InternalServerErrorException('Could not update the game room after the invitation was accepted. Details => ' + err);
-    //     }
-    //
-    //     return 'Game invitation with id ' + gameRoomInvitationToAccept._id + ' for the room with id : ' + gameRoomInvitationToAccept.gameRoomID + ' accepted by ' + gameRoomInvitationToAccept.to;
-    // }
-    //
-    // async refuseRequest(_id: string): Promise<string> {
-    //     let invitationRequestToDecline;
-    //     try {
-    //         invitationRequestToDecline = await this.gameInvitationModel.findById(_id);
-    //         if(invitationRequestToDecline.status === 'ACCEPTED') throw new BadRequestException('Invitation was already accepted');
-    //     } catch (err) {
-    //         throw new BadRequestException('Invitation does not exist');
-    //     }
-    //
-    //     let updatedRequest;
-    //     try {
-    //         updatedRequest = await this.gameInvitationModel.updateOne(
-    //           { _id: invitationRequestToDecline._id },
-    //           { status: RequestStatusEnum.REFUSED }
-    //         );
-    //     } catch (err) {
-    //         throw new BadRequestException('Could not refuse invitation. Details => ' + err);
-    //     }
-    //     try {
-    //         await this.gameInvitationModel.deleteOne({_id: _id});
-    //     }
-    //     catch(err) {
-    //         throw new InternalServerErrorException('Could not delete invitation after it was refused. Details => ' + err);
-    //     }
-    //
-    //     return 'Game room invitation with id : ' + invitationRequestToDecline._id + ' refused by ' + invitationRequestToDecline.to;
-    // }
+
+    async deleteOne(_id: string): Promise<void> {
+        //Delete the invitation
+        try {
+            await this.gameInvitationModel.deleteOne({_id: _id});
+        } catch(err) {
+            throw new BadRequestException('Could not delete invitation. Details => ' + err);
+        }
+    }
+
+    async
     //
     // async getAllPendingInvitationsRequestsForUser(to: string): Promise<IGameRoomInvitation[]> {
     //     let gameInvitationRequests;
@@ -206,6 +199,24 @@ export class GameRoomInvitationService {
         return gameInvitationsList;
     }
 
+
+    //PRIVATE METHODS//
+    private async updateExistingRequest(invitationRequestToAccept: IGameRoomInvitation): Promise<void> {
+        switch (invitationRequestToAccept.status) {
+            case RequestStatusEnum.PENDING:
+                throw new BadRequestException('Invitation is still pending');
+            default:
+                try{
+                    await this.gameInvitationModel.updateOne(
+                      { _id: invitationRequestToAccept._id },
+                      { status: RequestStatusEnum.PENDING }
+                    );
+                }catch (err) {
+                    throw new BadRequestException('Could not update invitation. Details => ' + err);
+                }
+                break ;
+        }
+    }
 
 
 }

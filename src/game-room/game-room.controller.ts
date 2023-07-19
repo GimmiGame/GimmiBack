@@ -107,7 +107,7 @@ export class GameRoomController {
     })
     @ApiResponse({
         status: 200,
-        description: 'You succesfully exited the game room.',
+        description: 'User succesfully exited the game room.',
     })
     async exitGameRoom(@Query('roomName') roomName : string, @Query('userId') userId: string) : Promise<void> {
         try {

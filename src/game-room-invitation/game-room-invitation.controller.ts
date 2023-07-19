@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import {
+    BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
+    NotFoundException,
+    Param,
+    Patch,
+    Post
+} from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { GameRoomInvitationService } from './game-room-invitation.service';
 import { GameRoomInvitationRequestDTO } from './dto/GameInvitationRequestDTO';
@@ -85,43 +95,71 @@ export class GameRoomInvitationController {
         }
     }
 
-    //
-    // @Patch('accept/:_id')
-    // @ApiOperation({
-    //     description: 'Accept a friend request',
-    // })
-    // @ApiParam({
-    //     name: '_id',
-    //     schema: {
-    //         default: '647265195dc8155d951d3a9c',
-    //     }
-    // })
-    // async acceptRequest(@Param('_id') _id: string) : Promise<string>{
-    //     try {
-    //     return await this.gameInvitationService.acceptRequest(_id);
-    //     } catch (err) {
-    //         throw new NotFoundException('Could not accept invitation request. Error: ' + err.message);
-    //     }
-    // }
-    //
-    //
-    //
-    // @Patch('refuse/:_id')
-    // @ApiOperation({
-    //     description: 'Refuse a game room invitation by giving the its _id',
-    // })
-    // @ApiParam({
-    //     name: '_id',
-    //     schema: {
-    //         default: '647265195dc8155d951d3a9c',
-    //     }
-    // })
-    // async refuseRequest(@Param('_id') _id: string) : Promise<string>{
-    //     try {
-    //     return await this.gameInvitationService.refuseRequest(_id);
-    //     } catch (err) {
-    //         throw new NotFoundException('Could not reject invitation. Error: ' + err.message);
-    //     }
-    // }
+
+    @Patch('accept/:_id')
+    @ApiOperation({
+        description: 'Accept a friend request',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+            default: '647265195dc8155d951d3a9c',
+        }
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'The invitation has been successfully accepted.',
+    })
+    async acceptRequest(@Param('_id') _id: string) : Promise<void>{
+        try {
+        return await this.gameInvitationService.acceptRequest(_id);
+        } catch (err) {
+            throw new NotFoundException('Could not accept invitation request. Error: ' + err.message);
+        }
+    }
+
+    @Patch('refuse/:_id')
+    @ApiOperation({
+        description: 'Refuse a game room invitation by giving the its _id',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+            default: '647265195dc8155d951d3a9c',
+        }
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'The invitation has been successfully refused.',
+    })
+    async refuseRequest(@Param('_id') _id: string) : Promise<void>{
+        try {
+        return await this.gameInvitationService.deleteOne(_id);
+        } catch (err) {
+            throw new NotFoundException('Could not reject invitation. Error: ' + err.message);
+        }
+    }
+
+    @Delete('delete/:_id')
+    @ApiOperation({
+        description: 'Delete a game invitation request by giving its _id',
+    })
+    @ApiParam({
+        name: '_id',
+        schema: {
+            default: '647265195dc8155d951d3a9c',
+        }
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'The invitation has been successfully deleted.',
+    })
+    async deleteRequest(@Param('_id') _id: string) : Promise<void>{
+        try {
+        return await this.gameInvitationService.deleteOne(_id);
+        } catch (err) {
+            throw new NotFoundException('Could not delete invitation. Error: ' + err.message);
+        }
+    }
 
 }
