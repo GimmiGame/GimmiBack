@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { IGameRoom } from 'src/_interfaces/IGameRoom';
 import { CreateGameRoomRequestDTO } from './dto/request/CreateGameRoomRequestDTO';
+import { omit } from 'lodash';
 import { CreateGameRoomResponseDTO } from './dto/response/CreateGameRoomResponseDTO';
 
 
@@ -11,7 +12,7 @@ export class GameRoomService {
 
     constructor(@InjectModel('GameRoom') private readonly gameRoomModel: Model<IGameRoom> ) {}
     
-    async createGameRoom(createGameRoomRequestDTO: CreateGameRoomRequestDTO): Promise<CreateGameRoomResponseDTO> {
+    async createGameRoom(createGameRoomRequestDTO: CreateGameRoomRequestDTO): Promise<void> {
         let newRequest;
         try {
             newRequest = new this.gameRoomModel({
@@ -28,108 +29,125 @@ export class GameRoomService {
             throw new BadRequestException('Could not save new game-room.\n Details => ' + err);
         }
 
-        let createdRequest : CreateGameRoomResponseDTO = {
-            _id: savedRequest._id,
-            message: 'GameRoom - ' + savedRequest.roomName + ' with id : ' + savedRequest._id + ' created.'
-        }
-        return createdRequest;
-    }
-
-    async joinGameRoom(_id: string, pseudo: string) : Promise<string[]> {
-        let gameRoom;
-        try {
-            gameRoom = await this.gameRoomModel.findOne({ _id: _id});
+        //Add the creator to the players list
+        try{
+        savedRequest.players.push(createGameRoomRequestDTO.creator);
+        savedRequest.save();
         } catch(err) {
-            throw new BadRequestException('This room does not exist');
+            throw new BadRequestException('Could not add the creator to the game-room.\n Details => ' + err);
         }
 
-        if(gameRoom) {
-            if(gameRoom.players.includes(pseudo)) {
-                throw new BadRequestException('You are already in this room');
-            }
-            gameRoom.players.push(pseudo);
-            gameRoom.save()
-        }
-        return gameRoom.players
     }
 
-    async findAllGameRooms(): Promise<string[]> {
-        let gameRoomsList : string[] = [];
+    async findAllGameRooms(): Promise<IGameRoom[]> {
+        let gameRoomsList : IGameRoom[] = [];
         try {
-            gameRoomsList = await this.gameRoomModel.find();
+            gameRoomsList = await this.gameRoomModel.find()
+              .populate({
+                  path : 'creator',
+                  select: 'pseudo'
+              })
+              .populate({
+                  path : 'players',
+                  select: 'pseudo'
+              });
         } catch(err) {
             Logger.log('No game rooms found.\n Details => ' + err);
         }
+
+
         return gameRoomsList;
     }
 
-    async exitGameRoom(_id: string, pseudo: string): Promise<string[]> {
+    async joinGameRoom(roomName: string, userId: string) : Promise<void> {
         let gameRoom;
         try {
-            gameRoom = await this.gameRoomModel.findOne({ _id: _id});
+            gameRoom = await this.gameRoomModel.findOne({ roomName: roomName});
         } catch(err) {
             throw new BadRequestException('This room does not exist');
         }
 
         if(gameRoom) {
-            const index = gameRoom.players.indexOf(pseudo, 0);
-            if (index > -1) {
-                gameRoom.players.splice(index, 1);
+            if(gameRoom.players.includes(userId)) {
+                throw new BadRequestException('User is already in this room');
             }
+        }
+
+        try{
+            gameRoom.players.push(userId);
             gameRoom.save()
+        } catch(err) {
+            throw new BadRequestException('Could not add the player to the game-room.\n Details => ' + err);
         }
-        return gameRoom.players
+
     }
 
-    async deleteGameRoom(_id: string): Promise<string> {
-        let result;
+    async exitGameRoom(roomName: string, userId: string): Promise<void> {
         try {
-            result = await this.gameRoomModel.deleteOne({ _id: _id });
-        } catch (err) {
-            throw new NotFoundException('No game room found with id : ' + _id + '. Details => ' + err);
-        }
+            const updatedGameRoom = await this.gameRoomModel.findOneAndUpdate(
+              { roomName: roomName, players: userId },
+              { $pull: { players: userId } },
+              { new: true }
+            );
 
-        return 'Game room with id : ' + _id + ' deleted';
+            if (!updatedGameRoom) {
+                throw new BadRequestException('User is not in this room');
+            }
+
+            if (updatedGameRoom.players.length === 0) {
+                await this.gameRoomModel.deleteOne({ roomName: roomName });
+            }
+        } catch (err) {
+            throw new BadRequestException('Could not remove the player from the game-room.\n Details => ' + err);
+        }
     }
+
+
 
     async getOneById(_id: string): Promise<IGameRoom> {
-        let gameRoom;
+        let gameRoom : IGameRoom
         try {
-            gameRoom = await this.gameRoomModel.findById(_id);
+            gameRoom = await this.gameRoomModel.findById(_id)
+              .populate({
+                  path : 'creator',
+                  select: 'pseudo'
+              })
+              .populate({
+                  path : 'players',
+                  select: 'pseudo'
+              });
+
         } catch (err) {
             throw new NotFoundException('No game room found with id : ' + _id + '.\n Details => ' + err);
         }
 
-        let response: IGameRoom;
-
-        if (gameRoom) {
-            response = {
-                _id: gameRoom._id,
-                roomName: gameRoom.roomName,
-                game: gameRoom.game,
-                players: gameRoom.players,
-                creator: gameRoom.creator,
-                gameStarted: gameRoom.gameStarted,
-                gameTerminated: gameRoom.gameTerminated,
-                gameSaved: gameRoom.gameSaved,
-            };
-        }
-
-        return response;
+        return gameRoom;
     }
 
-    async updateGameRoom(gameRoom: IGameRoom): Promise<IGameRoom> {
-        
-        let updatedRequest;
+    async updateGameRoom(roomName: string, updateData: Partial<IGameRoom>): Promise<void> {
         try {
-            updatedRequest = await this.gameRoomModel.updateOne(
-                {_id: gameRoom._id},
-                {players: gameRoom.players}
+            const updatedGameRoom = await this.gameRoomModel.findOneAndUpdate(
+              { roomName: roomName },
+              { $set: updateData },
+              { new: true }
             );
+
+            if (!updatedGameRoom) {
+                throw new NotFoundException('No game room found with name : ' + roomName);
+            }
+
         } catch (err) {
             throw new BadRequestException('Could not update game room. Details => ' + err);
         }
-        return updatedRequest;
     }
+
+    async deleteGameRoom(roomName: string): Promise<void> {
+        try {
+            await this.gameRoomModel.deleteOne({ roomName: roomName });
+        } catch (err) {
+            throw new NotFoundException('No game room found with name : ' + roomName + ' to delete. Details => ' + err);
+        }
+    }
+
 
 }

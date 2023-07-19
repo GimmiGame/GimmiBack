@@ -1,26 +1,26 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import RequestStatusEnum from "src/_enums/request-status-enum";
 
 export const GameInvitationSchema = new mongoose.Schema({
-    gameRoomID: {
-        type: String,
+    gameRoom: {
+        type: Types.ObjectId,
         required: true,
+        ref: "GameRoom",
     },
     from: {
-        type: String,
+        type: Types.ObjectId,
         required: true,
+        ref: "User",
     },
     to: {
-        type: String,
+        type: Types.ObjectId,
         required: true,
-    },
-    sendingDate: {
-        type: String
+        ref: "User",
     },
     status: {
         type: String,
         default: RequestStatusEnum.PENDING,
-      }
+    }
 })
 
 

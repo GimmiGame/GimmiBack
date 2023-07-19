@@ -1,32 +1,28 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 export const GameRoomSchema = new mongoose.Schema({
     roomName: {
         type: String,
         required: true,
+        unique: true,
     },
-    game: {
+    currentGame: {
+        //put type ObjectId with ref Game when game is created
         type: String,
-        required: true
     },
     players: {
-        type: [String],
-        default: null
+        type: [Types.ObjectId],
+        default: [],
+        ref: "User",
     },
     creator: {
-        type: String,
+        type: Types.ObjectId,
+        required: true,
+        ref: "User",
     },
-    gameStarted: {
-        type: Boolean,
-        default: false
-    },
-    terminated: {
-        type: Boolean,
-        default: false
-    },
-    saved: {
-        type: Boolean,
-        default: false
+    maxPlayers: {
+        type: Number,
+        default: 20
     }
 
 })
