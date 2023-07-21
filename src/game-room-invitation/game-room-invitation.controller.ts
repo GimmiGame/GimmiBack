@@ -16,8 +16,8 @@ import { GameRoomInvitationResponseDTO } from './dto/GameInvitationResponseDTO';
 import { IFriendRequest } from 'src/_interfaces/IFriendRequest';
 import { IGameRoomInvitation } from 'src/_interfaces/IGameRoomInvitation';
 
-@Controller('game-invitations')
-@ApiTags('Game Invitation ')
+@Controller('game-room-invitations')
+@ApiTags('Game room Invitation')
 export class GameRoomInvitationController {
 
     constructor(private readonly gameInvitationService: GameRoomInvitationService) {}

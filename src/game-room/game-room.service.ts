@@ -5,36 +5,37 @@ import { IGameRoom } from 'src/_interfaces/IGameRoom';
 import { CreateGameRoomRequestDTO } from './dto/request/CreateGameRoomRequestDTO';
 import { omit } from 'lodash';
 import { CreateGameRoomResponseDTO } from './dto/response/CreateGameRoomResponseDTO';
+import { UserService } from "../user/user.service";
 
 
 @Injectable()
 export class GameRoomService {
 
-    constructor(@InjectModel('GameRoom') private readonly gameRoomModel: Model<IGameRoom> ) {}
+    constructor(@InjectModel('GameRoom') private readonly gameRoomModel: Model<IGameRoom> , private readonly userService : UserService) {}
     
     async createGameRoom(createGameRoomRequestDTO: CreateGameRoomRequestDTO): Promise<void> {
-        let newRequest;
+        const userObject = await this.userService.getUserByPseudo(createGameRoomRequestDTO.creator);
+        let newRequest
         try {
-            newRequest = new this.gameRoomModel({
-                ...createGameRoomRequestDTO,
+            await this.gameRoomModel.create({
+                roomName: createGameRoomRequestDTO.roomName,
+                currentGame: createGameRoomRequestDTO.currentGame,
+                creator: userObject._id,
+                maxPlayers: createGameRoomRequestDTO.maxPlayers,
             });
         } catch(err) {
-            throw new BadRequestException('Could not create new game-room.\n Details => ' + err);
+            throw new BadRequestException('Impossible de créer/enregistrer la nouvelle salle de jeu.\n Détails => ' + err);
         }
 
-        let savedRequest; 
+        //ADD CREATOR TO PLAYERS LIST
         try {
-            savedRequest = await newRequest.save()
-        } catch (err) {
-            throw new BadRequestException('Could not save new game-room.\n Details => ' + err);
-        }
-
-        //Add the creator to the players list
-        try{
-        savedRequest.players.push(createGameRoomRequestDTO.creator);
-        savedRequest.save();
+            await this.gameRoomModel.findOneAndUpdate(
+                { roomName: createGameRoomRequestDTO.roomName },
+                { $push: { players: userObject._id } },
+                { new: true }
+            );
         } catch(err) {
-            throw new BadRequestException('Could not add the creator to the game-room.\n Details => ' + err);
+            throw new BadRequestException('Impossible d\'ajouter le créateur à la liste des joueurs.\n Détails => ' + err);
         }
 
     }

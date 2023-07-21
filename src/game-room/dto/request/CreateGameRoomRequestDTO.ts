@@ -19,7 +19,7 @@ export class CreateGameRoomRequestDTO {
     currentGame: string;
 
     @ApiProperty({
-        default: "5f9b3b3b1c9d440000d3b0d0"
+        default: "Mouss"
     })
     @IsNotEmpty()
     @IsString()

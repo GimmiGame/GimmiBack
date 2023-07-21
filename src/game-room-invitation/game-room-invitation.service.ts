@@ -24,7 +24,7 @@ export class GameRoomInvitationService {
             gameInvitationsList = await this.gameInvitationModel.find()
               .populate({
                   path : 'gameRoom',
-                  select : 'roomName _id'
+                  select : 'roomName'
               })
               .populate({
                   path : 'from',
@@ -47,7 +47,7 @@ export class GameRoomInvitationService {
             gameInvitation = await this.gameInvitationModel.findById(_id)
               .populate({
                   path : 'gameRoom',
-                  select : 'roomName _id'
+                  select : 'roomName'
               })
               .populate({
                   path : 'from',
