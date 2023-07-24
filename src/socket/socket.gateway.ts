@@ -12,7 +12,7 @@ import { Server } from "socket.io";
     origin: '*'
   }
 })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
 
   @WebSocketServer() server: Server
 
@@ -33,4 +33,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     console.log("Message received : ", payload)
     this.server.emit('receivedMessage', payload)
   }
+
+
 }
