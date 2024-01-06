@@ -32,13 +32,6 @@
 $ npm install
 ```
 
-## Usefull scripts
-
-```bash
-# generate new module,controller,service,class
-$ npm run nestPack
-```
-
 ## Running the app
 
 ```bash
